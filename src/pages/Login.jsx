@@ -1,0 +1,88 @@
+import React, { useState } from "react";
+import Button from "../components/common/Button";
+import { Link } from "react-router-dom";
+
+function Login() {
+  const [form, setForm] = useState({ email: "", password: "" });
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleLogin = async () => {
+    // e.preventDefault();
+
+    try {
+      console.log(form, "formdata");
+      //   await signup(form);
+      //   setForm({email: "", password: "", fullName: ""})
+      //   Navigate("/login");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row h-screen">
+      <div className="hidden md:block w-1/2">
+        <img
+          src="https://plus.unsplash.com/premium_vector-1706709710787-05e3f59294cf?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="login page visual"
+          className="h-full w-full object-cover"
+        />
+      </div>
+
+      {/* Right Login Form Section (Takes full width on small screens, half on md+) */}
+      <div className="flex items-center justify-center w-full md:w-1/2 px-8">
+        {/* Form Container Card */}
+        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+          <h2 className="text-3xl font-bold text-center text-blue-600 mb-4">
+            Login
+          </h2>
+          <p className="text-gray-600 text-center mb-6">
+            Welcome back! Please enter your credentials to log in.
+          </p>
+
+          {/* Email Input */}
+          <input
+            type="email"
+            placeholder="Email address"
+            name="email"
+            className="w-full border border-gray-300 rounded-md px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={handleChange}
+            value={form.email}
+          />
+
+          {/* Password Input */}
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            className="w-full border border-gray-300 rounded-md px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={handleChange}
+            value={form.password}
+          />
+
+          <Button
+            text="Login"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            onClick={handleLogin}
+          />
+
+          {/* Sign Up Link */}
+          <p className="text-center text-sm text-gray-600 mt-4">
+            Don’t have an account?
+            <Link
+              to="/signup"
+              className="text-blue-600 hover:underline font-semibold"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
