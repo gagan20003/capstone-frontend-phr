@@ -1,22 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../components/common/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../store/hooks";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const { login, isLoggedIn, loading, error } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/dashboard");
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleLogin = async () => {
-    // e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
     try {
-      console.log(form, "formdata");
-      //   await signup(form);
-      //   setForm({email: "", password: "", fullName: ""})
-      //   Navigate("/login");
+      const result = await login(form);
+      if (result.type === "auth/login/fulfilled") {
+        setForm({ email: "", password: "" });
+        navigate("/dashboard");
+      }
     } catch (err) {
       console.log(err);
     }
@@ -43,6 +53,12 @@ function Login() {
             Welcome back! Please enter your credentials to log in.
           </p>
 
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+
           {/* Email Input */}
           <input
             type="email"
@@ -64,9 +80,10 @@ function Login() {
           />
 
           <Button
-            text="Login"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            text={loading ? "Logging in..." : "Login"}
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleLogin}
+            disabled={loading}
           />
 
           {/* Sign Up Link */}

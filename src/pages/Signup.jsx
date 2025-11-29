@@ -1,26 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../components/common/Button";
-import { Link } from "react-router-dom";
-// import { useAuth } from "../context/AuthContext";
-// import { signup } from "../api/apiService";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../store/hooks";
 
 function Signup() {
   const [form, setForm] = useState({ email: "", fullName: "", password: "" });
+  const { signup, isLoggedIn, loading, error } = useAuth();
+  const navigate = useNavigate();
 
-  //   const { login } = useAuth();
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/dashboard");
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSignup = async () => {
-    // e.preventDefault();
+  const handleSignup = async (e) => {
+    e.preventDefault();
 
     try {
-      console.log(form, "formdata");
-      //   await signup(form);
-      //   setForm({email: "", password: "", fullName: ""})
-      //   Navigate("/login");
+      const result = await signup(form);
+      if (result.type === "auth/signup/fulfilled") {
+        if (result.payload.token) {
+          // If token is returned, navigate to dashboard
+          setForm({ email: "", password: "", fullName: "" });
+          navigate("/dashboard");
+        } else {
+          // If no token, redirect to login
+          setForm({ email: "", password: "", fullName: "" });
+          navigate("/login");
+        }
+      }
     } catch (err) {
       console.log(err);
     }
@@ -46,6 +59,12 @@ function Signup() {
           <p className="text-gray-600 text-center mb-6">
             Join HealthBridge today! Enter your details below.
           </p>
+
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
 
           <input
             type="text"
@@ -77,9 +96,10 @@ function Signup() {
           />
 
           <Button
-            text="Sign Up"
+            text={loading ? "Signing up..." : "Sign Up"}
             onClick={handleSignup}
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
           />
 
           {/* Login Link */}

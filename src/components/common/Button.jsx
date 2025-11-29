@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 
-const Button = ({ text, onClick, type = "button", className = "" }) => {
+const Button = ({ text, onClick, type = "button", className = "", disabled = false }) => {
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
+    if (disabled || loading) return;
     setLoading(true);
     try {
       await onClick(); // Call the passed function
@@ -14,12 +15,14 @@ const Button = ({ text, onClick, type = "button", className = "" }) => {
     }
   };
 
+  const isDisabled = disabled || loading;
+
   return (
     <button
       type={type}
       className={`btn ${className}`}
       onClick={handleClick}
-      disabled={loading}
+      disabled={isDisabled}
       style={{
         display: "flex",
         alignItems: "center",
@@ -31,7 +34,7 @@ const Button = ({ text, onClick, type = "button", className = "" }) => {
         backgroundColor: "#007bff",
         color: "#fff",
         border: "none",
-        cursor: loading ? "not-allowed" : "pointer",
+        cursor: isDisabled ? "not-allowed" : "pointer",
       }}
     >
       {loading ? (

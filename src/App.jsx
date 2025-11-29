@@ -6,6 +6,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Appointments from "./pages/Appointments";
+import MedicalRecords from "./pages/MedicalRecords";
+import UserProfile from "./pages/UserProfile";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/appointments" element={<Appointments />} />
+      <Route path="/records" element={<MedicalRecords />} />
+      <Route path="/profile" element={<UserProfile />} />
     </Routes>
   );
 }
