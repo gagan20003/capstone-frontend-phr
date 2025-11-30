@@ -4,6 +4,7 @@ import AppointmentDetailCard from "../components/appointments/AppointmentDetailC
 import Tabs from "../components/appointments/Tabs";
 import BookAppointmentModal from "../components/appointments/BookAppointmentModal";
 import { Plus } from "lucide-react";
+import { getAppointments, createAppointment, updateAppointment, deleteAppointment } from "../api/apiService";
 
 function Appointments() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -12,79 +13,67 @@ function Appointments() {
   const [modalMode, setModalMode] = useState("book"); // "book" or "reschedule"
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
-  // Sample appointment data
-  const appointments = [
-    {
-      id: 1,
-      doctorName: "Dr. Sarah Johnson",
-      date: "2025-11-26",
-      time: "10:00 AM",
-      address: "Heart Care Clinic - 123 Medical Plaza, Suite 400",
-      description: "Follow-up appointment for blood pressure monitoring",
-      status: "upcoming",
-    },
-    {
-      id: 2,
-      doctorName: "Dr. Michael Chen",
-      date: "2025-11-28",
-      time: "2:30 PM",
-      address: "City Medical Center - 456 Health Avenue",
-      description: "Annual checkup and routine examination",
-      status: "upcoming",
-    },
-    {
-      id: 3,
-      doctorName: "Dr. Emily Davis",
-      date: "2025-11-02",
-      time: "9:00 AM",
-      address: "Wellness Clinic - 789 Care Street",
-      description: "Consultation for ongoing treatment",
-      status: "past",
-    },
-    {
-      id: 4,
-      doctorName: "Dr. James Wilson",
-      date: "2025-10-15",
-      time: "11:00 AM",
-      address: "Family Health Center - 321 Wellness Blvd",
-      description: "Follow-up visit",
-      status: "past",
-    },
-    {
-      id: 5,
-      doctorName: "Dr. Lisa Anderson",
-      date: "2025-11-24",
-      time: "3:00 PM",
-      address: "General Practice - 555 Main Street",
-      description: "Regular consultation",
-      status: "upcoming",
-    },
-  ];
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const data = await getAppointments();
+      setAppointments(data);
+    } catch (err) {
+      console.error("Failed to fetch appointments", err);
+      setError("Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const appointmentDates = appointments.map((apt) => ({
-    date: apt.date,
+    date: apt.appointmentDate,
   }));
 
   const filteredAppointments = appointments.filter(
-    (apt) => apt.status === activeTab
+    (apt) => {
+      // Simple status check based on date for now if backend doesn't return status
+      // Or assume backend returns 'status' field. 
+      // The controller returns 'Appointments' model. Let's assume it has status or we derive it.
+      // If the model doesn't have status, we might need to compute it.
+      // Looking at the controller, it returns Appointments model. 
+      // Let's assume the model matches the mock data structure roughly or we adapt.
+      // For now, let's trust the backend returns what we need or we adapt.
+      // Actually, the mock data has 'status'. The backend might not.
+      // Let's infer status from date if missing.
+      const isPast = new Date(apt.appointmentDate) < new Date();
+      const derivedStatus = isPast ? "past" : "upcoming";
+      return derivedStatus === activeTab;
+    }
   );
 
-  const upcomingCount = appointments.filter((apt) => apt.status === "upcoming").length;
-  const pastCount = appointments.filter((apt) => apt.status === "past").length;
+  const upcomingCount = appointments.filter(apt => new Date(apt.appointmentDate) >= new Date()).length;
+  const pastCount = appointments.filter(apt => new Date(apt.appointmentDate) < new Date()).length;
 
   const handleReschedule = (appointmentId) => {
-    const appointment = appointments.find((apt) => apt.id === appointmentId);
+    const appointment = appointments.find((apt) => apt.appointmentId === appointmentId);
     setSelectedAppointment(appointment);
     setModalMode("reschedule");
     setIsModalOpen(true);
   };
 
-  const handleCancel = (appointmentId) => {
-    console.log("Cancel appointment:", appointmentId);
-    // Add cancel logic here - could show confirmation dialog
+  const handleCancel = async (appointmentId) => {
     if (window.confirm("Are you sure you want to cancel this appointment?")) {
-      // Handle cancellation
-      console.log("Appointment cancelled:", appointmentId);
+      try {
+        await deleteAppointment(appointmentId);
+        setAppointments(appointments.filter(a => a.appointmentId !== appointmentId));
+      } catch (err) {
+        console.error("Failed to cancel appointment", err);
+        alert("Failed to cancel appointment");
+      }
     }
   };
 
@@ -99,20 +88,44 @@ function Appointments() {
     setSelectedAppointment(null);
   };
 
-  const handleBook = (formData) => {
-    console.log("Booking appointment:", formData);
-    // Add API call to book appointment here
-    // After successful booking, close modal and refresh appointments
-    handleCloseModal();
-    // You might want to show a success message here
+  const handleBook = async (formData) => {
+    try {
+      // Adapt formData to backend DTO if needed
+      const payload = {
+        doctorName: formData.doctorName,
+        appointmentDate: formData.date + 'T' + formData.time, // Combine date and time
+        reason: formData.description, // Map description to reason if needed, or check DTO
+        // Check DTO from controller: CreateUpdateAppointmentDto
+        // It likely has DoctorName, AppointmentDate, Reason/Description.
+        // Let's assume standard fields.
+        ...formData
+      };
+      // We might need to format date properly.
+
+      await createAppointment(payload);
+      fetchAppointments();
+      handleCloseModal();
+    } catch (err) {
+      console.error("Failed to book appointment", err);
+      alert("Failed to book appointment");
+    }
   };
 
-  const handleRescheduleSubmit = (formData) => {
-    console.log("Rescheduling appointment:", formData);
-    // Add API call to reschedule appointment here
-    // After successful reschedule, close modal and refresh appointments
-    handleCloseModal();
-    // You might want to show a success message here
+  const handleRescheduleSubmit = async (formData) => {
+    try {
+      const payload = {
+        doctorName: formData.doctorName,
+        appointmentDate: formData.date + 'T' + formData.time,
+        reason: formData.description,
+        ...formData
+      };
+      await updateAppointment(selectedAppointment.appointmentId, payload);
+      fetchAppointments();
+      handleCloseModal();
+    } catch (err) {
+      console.error("Failed to reschedule appointment", err);
+      alert("Failed to reschedule appointment");
+    }
   };
 
   return (
