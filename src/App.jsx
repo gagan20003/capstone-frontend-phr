@@ -8,14 +8,16 @@ import Dashboard from "./pages/Dashboard";
 import Appointments from "./pages/Appointments";
 import MedicalRecords from "./pages/MedicalRecords";
 import UserProfile from "./pages/UserProfile";
+import { useAuth } from "./store/hooks";
 
 function App() {
+  const { isLoggedIn } = useAuth();
+
   return (
     <Routes>
-      <Route path="/" element={<Hero />} />
+      <Route path="/" element={isLoggedIn ? <Dashboard /> : <Hero />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/appointments" element={<Appointments />} />
       <Route path="/records" element={<MedicalRecords />} />
       <Route path="/profile" element={<UserProfile />} />

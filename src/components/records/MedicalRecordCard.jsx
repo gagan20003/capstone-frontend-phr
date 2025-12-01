@@ -5,10 +5,10 @@ import Button from "../common/Button";
 const getRecordTypeColor = (type) => {
   const colors = {
     "Lab Reports": "bg-blue-100 text-blue-700",
-    "Prescriptions": "bg-green-100 text-green-700",
-    "Imaging": "bg-purple-100 text-purple-700",
-    "Consultations": "bg-orange-100 text-orange-700",
-    "Vaccinations": "bg-yellow-100 text-yellow-700",
+    Prescriptions: "bg-green-100 text-green-700",
+    Imaging: "bg-purple-100 text-purple-700",
+    Consultations: "bg-orange-100 text-orange-700",
+    Vaccinations: "bg-yellow-100 text-yellow-700",
   };
   return colors[type] || "bg-gray-100 text-gray-700";
 };
@@ -16,10 +16,10 @@ const getRecordTypeColor = (type) => {
 const getRecordTypeIconColor = (type) => {
   const colors = {
     "Lab Reports": "text-blue-600",
-    "Prescriptions": "text-green-600",
-    "Imaging": "text-purple-600",
-    "Consultations": "text-orange-600",
-    "Vaccinations": "text-yellow-600",
+    Prescriptions: "text-green-600",
+    Imaging: "text-purple-600",
+    Consultations: "text-orange-600",
+    Vaccinations: "text-yellow-600",
   };
   return colors[type] || "text-gray-600";
 };
@@ -35,19 +35,19 @@ const MedicalRecordCard = ({ record, onView, onDelete }) => {
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
       {/* Icon and Title */}
       <div className="flex items-start gap-4 mb-4">
-        <div className={`${getRecordTypeIconColor(record.type)}`}>
+        <div className={`${getRecordTypeIconColor(record.recordType)}`}>
           <FileText size={32} />
         </div>
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            {record.title}
+            {record.description}
           </h3>
           <span
             className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getRecordTypeColor(
-              record.type
+              record.recordType
             )}`}
           >
-            {record.type}
+            {record.recordType}
           </span>
         </div>
       </div>
@@ -55,7 +55,7 @@ const MedicalRecordCard = ({ record, onView, onDelete }) => {
       {/* Date */}
       <div className="flex items-center gap-2 text-gray-600 mb-2">
         <Calendar size={18} className="text-blue-600" />
-        <span className="text-sm">{formatDate(record.date)}</span>
+        <span className="text-sm">{formatDate(record.recordDate)}</span>
       </div>
 
       {/* Provider */}
@@ -92,4 +92,3 @@ const MedicalRecordCard = ({ record, onView, onDelete }) => {
 };
 
 export default MedicalRecordCard;
-

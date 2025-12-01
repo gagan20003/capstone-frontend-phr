@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "./Button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../store/hooks";
 
 function Header() {
@@ -22,16 +22,20 @@ function Header() {
   return (
     <header className="flex justify-between items-center px-6 py-4  shadow-md top-0 sticky bg-white backdrop-blur-xl">
       {/* Logo */}
-      <a className="text-2xl font-bold text-blue-600">HealthBridge</a>
+      <Link to={"/"} className="text-2xl font-bold text-blue-600">
+        HealthBridge
+      </Link>
 
       {/* Navigation */}
-      {isLoggedIn && (
-        <nav className="flex gap-6 text-gray-700 font-medium">
-          <a>Profile</a>
-          <a>Records</a>
-          <a>Appointments</a>
-        </nav>
-      )}
+      <div className="hidden md:block">
+        {isLoggedIn && (
+          <nav className="flex gap-6 text-gray-700 font-medium">
+            <Link to={"/profile"}>Profile</Link>
+            <Link to={"/records"}>Records</Link>
+            <Link to={"/appointments"}>Appointments</Link>
+          </nav>
+        )}
+      </div>
 
       {/* Login/Register Buttons or Logout */}
       <div className="flex gap-3">

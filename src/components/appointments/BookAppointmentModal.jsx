@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Calendar, ChevronDown } from "lucide-react";
 import Button from "../common/Button";
+import { extractFormattedDateTime } from "../../utils/helper";
 
 const BookAppointmentModal = ({
   isOpen,
@@ -11,11 +12,11 @@ const BookAppointmentModal = ({
   onReschedule,
 }) => {
   const [formData, setFormData] = useState({
-    doctor: "",
-    appointmentType: "",
+    doctorName: "",
     date: "",
     time: "",
-    reason: "",
+    purpose: "",
+    status: "",
   });
 
   // Sample doctors list
@@ -26,8 +27,6 @@ const BookAppointmentModal = ({
     { id: 4, name: "Dr. James Wilson", specialty: "Orthopedist" },
     { id: 5, name: "Dr. Lisa Anderson", specialty: "Pediatrician" },
   ];
-
-  const appointmentTypes = ["In-Person Visit", "Telemedicine", "Follow-up"];
 
   const timeSlots = [
     "9:00 AM",
@@ -49,30 +48,62 @@ const BookAppointmentModal = ({
     "5:00 PM",
   ];
 
+  const formatTimeTo24h = (time12h) => {
+    if (!time12h) return "";
+
+    const [time, modifier] = time12h.split(" ");
+    let [hours, minutes] = time.split(":");
+
+    if (hours === "12") {
+      hours = "00";
+    }
+
+    if (modifier === "PM") {
+      hours = parseInt(hours, 10) + 12;
+    }
+
+    // Ensure leading zeros for single digits and append seconds
+    return `${String(hours).padStart(2, "0")}:${minutes}:00`;
+  };
+
   useEffect(() => {
     if (mode === "reschedule" && appointment) {
-      // Pre-fill form with appointment data
-      const appointmentDate = new Date(appointment.date);
-      // Format as yyyy-mm-dd for date input
-      const formattedDate = `${appointmentDate.getFullYear()}-${String(
-        appointmentDate.getMonth() + 1
-      ).padStart(2, "0")}-${String(appointmentDate.getDate()).padStart(2, "0")}`;
+      // // Pre-fill form with appointment data
+      // console.log(appointment, "date");
+      // const appointmentDate = new Date(appointment.date);
+      // // Format as yyyy-mm-dd for date input
+      // const formattedDate = `${appointmentDate.getFullYear()}-${String(
+      //   appointmentDate.getMonth() + 1
+      // ).padStart(2, "0")}-${String(appointmentDate.getDate()).padStart(
+      //   2,
+      //   "0"
+      // )}`;
+
+      // console.log(formattedDate, "formattedDate");
+
+      // const formattedTime = formatTimeTo24h(appointmentDate.time);
+
+      const { formattedDate, formattedTime } = extractFormattedDateTime(
+        appointment.appointmentDate
+      );
+
+      console.log(formattedDate, formattedTime);
 
       setFormData({
-        doctor: appointment.doctorName || "",
-        appointmentType: "In-Person Visit", // Default or from appointment data
+        doctorName: appointment.doctorName || "",
         date: formattedDate,
-        time: appointment.time || "",
-        reason: appointment.description || "",
+        time: formattedTime || "",
+        purpose: appointment.purpose || "",
+        status: appointment.status || "Scheduled",
       });
     } else {
       // Reset form for new booking
       setFormData({
-        doctor: "",
-        appointmentType: "",
+        doctorName: "",
         date: "",
         time: "",
-        reason: "",
+        purpose: "",
+        status: "",
       });
     }
   }, [mode, appointment, isOpen]);
@@ -87,12 +118,11 @@ const BookAppointmentModal = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (mode === "reschedule") {
-      onReschedule({ ...formData, appointmentId: appointment?.id });
+      onReschedule({ ...formData, appointmentId: appointment?.appointmentId });
     } else {
       onBook(formData);
     }
   };
-
 
   const handleDateChange = (e) => {
     const value = e.target.value; // yyyy-mm-dd format from input
@@ -110,7 +140,9 @@ const BookAppointmentModal = ({
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800">
-            {isRescheduleMode ? "Reschedule Appointment" : "Book New Appointment"}
+            {isRescheduleMode
+              ? "Reschedule Appointment"
+              : "Book New Appointment"}
           </h2>
           <button
             onClick={onClose}
@@ -129,8 +161,8 @@ const BookAppointmentModal = ({
             </label>
             <div className="relative">
               <select
-                value={formData.doctor}
-                onChange={(e) => handleChange("doctor", e.target.value)}
+                value={formData.doctorName}
+                onChange={(e) => handleChange("doctorName", e.target.value)}
                 disabled={isFieldDisabled}
                 className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   isFieldDisabled
@@ -153,37 +185,6 @@ const BookAppointmentModal = ({
             </div>
           </div>
 
-          {/* Appointment Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Appointment Type
-            </label>
-            <div className="relative">
-              <select
-                value={formData.appointmentType}
-                onChange={(e) => handleChange("appointmentType", e.target.value)}
-                disabled={isFieldDisabled}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  isFieldDisabled
-                    ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                    : "bg-white text-gray-800"
-                } appearance-none`}
-                required={!isRescheduleMode}
-              >
-                <option value="">Select appointment type</option>
-                {appointmentTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                size={20}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-              />
-            </div>
-          </div>
-
           {/* Date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -192,14 +193,11 @@ const BookAppointmentModal = ({
             <div className="relative">
               <input
                 type="date"
+                min="todayAsYYYYMMDD"
                 value={formData.date}
                 onChange={handleDateChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
                 required
-              />
-              <Calendar
-                size={20}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
               />
             </div>
           </div>
@@ -236,8 +234,8 @@ const BookAppointmentModal = ({
               Reason for Visit
             </label>
             <textarea
-              value={formData.reason}
-              onChange={(e) => handleChange("reason", e.target.value)}
+              value={formData.purpose}
+              onChange={(e) => handleChange("purpose", e.target.value)}
               disabled={isFieldDisabled}
               placeholder="Describe your symptoms or reason for appointment..."
               rows={4}
@@ -271,4 +269,3 @@ const BookAppointmentModal = ({
 };
 
 export default BookAppointmentModal;
-

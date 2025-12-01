@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Edit2, AlertCircle, Pill } from "lucide-react";
 import PersonalInformationSection from "../components/profile/PersonalInformationSection";
 import AllergyCard from "../components/profile/AllergyCard";
@@ -17,6 +17,8 @@ import {
   updateMedication,
   deleteMedication,
 } from "../api/apiService";
+import { toast } from "react-toastify";
+import DashboardShimmer from "../components/common/Shimmer";
 
 function UserProfile() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -45,6 +47,7 @@ function UserProfile() {
       setProfileData(profile);
       setAllergies(allergiesData);
       setMedications(medicationsData);
+      console.log(allergies, "profiledata");
     } catch (err) {
       console.error("Failed to fetch profile data", err);
       // Handle error appropriately
@@ -62,11 +65,18 @@ function UserProfile() {
 
   const handleSaveProfile = async () => {
     try {
-      await updateUserProfile(profileData);
+      await updateUserProfile({
+        age: profileData.age,
+        gender: profileData.gender,
+        emergencycontact: profileData.emergencycontact,
+        weight: profileData.weight,
+        bloodGroup: profileData.bloodGroup,
+      });
+      toast.success("updated details successfully");
       setIsEditingProfile(false);
     } catch (err) {
       console.error("Failed to update profile", err);
-      alert("Failed to update profile");
+      toast.error("Failed to update profile");
     }
   };
 
@@ -84,8 +94,10 @@ function UserProfile() {
     try {
       if (editingAllergy) {
         await updateAllergy(editingAllergy.allergyId, allergyData);
+        toast.success("Updated successfully.");
       } else {
         await createAllergy(allergyData);
+        toast.success("Added successfully.");
       }
       const updatedAllergies = await getAllergies();
       setAllergies(updatedAllergies);
@@ -93,19 +105,18 @@ function UserProfile() {
       setEditingAllergy(null);
     } catch (err) {
       console.error("Failed to save allergy", err);
-      alert("Failed to save allergy");
+      toast.error("Failed to save allergy");
     }
   };
 
   const handleDeleteAllergy = async (id) => {
-    if (window.confirm("Are you sure you want to delete this allergy?")) {
-      try {
-        await deleteAllergy(id);
-        setAllergies(allergies.filter((a) => a.allergyId !== id));
-      } catch (err) {
-        console.error("Failed to delete allergy", err);
-        alert("Failed to delete allergy");
-      }
+    try {
+      await deleteAllergy(id);
+      toast.success("deleted successfully successfully.");
+      setAllergies(allergies.filter((a) => a.allergyId !== id));
+    } catch (err) {
+      console.error("Failed to delete allergy", err);
+      toast.error("Failed to delete allergy");
     }
   };
 
@@ -123,8 +134,10 @@ function UserProfile() {
     try {
       if (editingMedication) {
         await updateMedication(editingMedication.medicationId, medicationData);
+        toast.success("Updated Successfully");
       } else {
         await createMedication(medicationData);
+        toast.success("Created successfully.");
       }
       const updatedMedications = await getMedications();
       setMedications(updatedMedications);
@@ -132,23 +145,22 @@ function UserProfile() {
       setEditingMedication(null);
     } catch (err) {
       console.error("Failed to save medication", err);
-      alert("Failed to save medication");
+      toast.error("Failed to save medication");
     }
   };
 
   const handleDeleteMedication = async (id) => {
-    if (window.confirm("Are you sure you want to delete this medication?")) {
-      try {
-        await deleteMedication(id);
-        setMedications(medications.filter((m) => m.medicationId !== id));
-      } catch (err) {
-        console.error("Failed to delete medication", err);
-        alert("Failed to delete medication");
-      }
+    try {
+      await deleteMedication(id);
+      toast.success("deleted successfully successfully.");
+      setMedications(medications.filter((m) => m.medicationId !== id));
+    } catch (err) {
+      console.error("Failed to delete medication", err);
+      toast.error("Failed to delete medication");
     }
   };
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading) return <DashboardShimmer />;
   if (!profileData) return <div className="p-6">Profile not found.</div>;
 
   return (
@@ -157,7 +169,9 @@ function UserProfile() {
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Health Profile</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Health Profile
+            </h1>
             <p className="text-gray-600">Your complete health information</p>
           </div>
           <button
@@ -220,7 +234,9 @@ function UserProfile() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">No allergies recorded</p>
+            <p className="text-gray-500 text-center py-8">
+              No allergies recorded
+            </p>
           )}
         </div>
 
@@ -262,7 +278,9 @@ function UserProfile() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">No medications recorded</p>
+            <p className="text-gray-500 text-center py-8">
+              No medications recorded
+            </p>
           )}
         </div>
 

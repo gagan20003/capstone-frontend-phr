@@ -10,7 +10,7 @@ function Signup() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [isLoggedIn, navigate]);
 
@@ -19,7 +19,7 @@ function Signup() {
   };
 
   const handleSignup = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
 
     try {
       const result = await signup(form);
@@ -27,7 +27,7 @@ function Signup() {
         if (result.payload.token) {
           // If token is returned, navigate to dashboard
           setForm({ email: "", password: "", fullName: "" });
-          navigate("/dashboard");
+          navigate("/");
         } else {
           // If no token, redirect to login
           setForm({ email: "", password: "", fullName: "" });

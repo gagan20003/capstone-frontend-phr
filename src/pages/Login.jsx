@@ -10,7 +10,7 @@ function Login() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [isLoggedIn, navigate]);
 
@@ -19,13 +19,13 @@ function Login() {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
 
     try {
       const result = await login(form);
       if (result.type === "auth/login/fulfilled") {
         setForm({ email: "", password: "" });
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (err) {
       console.log(err);

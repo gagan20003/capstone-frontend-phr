@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "../components/appointments/Calendar";
 import AppointmentDetailCard from "../components/appointments/AppointmentDetailCard";
 import Tabs from "../components/appointments/Tabs";
 import BookAppointmentModal from "../components/appointments/BookAppointmentModal";
 import { Plus } from "lucide-react";
-import { getAppointments, createAppointment, updateAppointment, deleteAppointment } from "../api/apiService";
+import {
+  getAppointments,
+  createAppointment,
+  updateAppointment,
+  deleteAppointment,
+} from "../api/apiService";
+import { toast } from "react-toastify";
+import DashboardShimmer from "../components/common/Shimmer";
 
 function Appointments() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -38,42 +45,37 @@ function Appointments() {
     date: apt.appointmentDate,
   }));
 
-  const filteredAppointments = appointments.filter(
-    (apt) => {
-      // Simple status check based on date for now if backend doesn't return status
-      // Or assume backend returns 'status' field. 
-      // The controller returns 'Appointments' model. Let's assume it has status or we derive it.
-      // If the model doesn't have status, we might need to compute it.
-      // Looking at the controller, it returns Appointments model. 
-      // Let's assume the model matches the mock data structure roughly or we adapt.
-      // For now, let's trust the backend returns what we need or we adapt.
-      // Actually, the mock data has 'status'. The backend might not.
-      // Let's infer status from date if missing.
-      const isPast = new Date(apt.appointmentDate) < new Date();
-      const derivedStatus = isPast ? "past" : "upcoming";
-      return derivedStatus === activeTab;
-    }
-  );
+  const filteredAppointments = appointments.filter((apt) => {
+    const isPast = new Date(apt.appointmentDate) < new Date();
+    const derivedStatus = isPast ? "past" : "upcoming";
+    return derivedStatus === activeTab;
+  });
 
-  const upcomingCount = appointments.filter(apt => new Date(apt.appointmentDate) >= new Date()).length;
-  const pastCount = appointments.filter(apt => new Date(apt.appointmentDate) < new Date()).length;
+  const upcomingCount = appointments.filter(
+    (apt) => new Date(apt.appointmentDate) >= new Date()
+  ).length;
+  const pastCount = appointments.filter(
+    (apt) => new Date(apt.appointmentDate) < new Date()
+  ).length;
 
   const handleReschedule = (appointmentId) => {
-    const appointment = appointments.find((apt) => apt.appointmentId === appointmentId);
+    const appointment = appointments.find(
+      (apt) => apt.appointmentId === appointmentId
+    );
     setSelectedAppointment(appointment);
     setModalMode("reschedule");
     setIsModalOpen(true);
   };
 
   const handleCancel = async (appointmentId) => {
-    if (window.confirm("Are you sure you want to cancel this appointment?")) {
-      try {
-        await deleteAppointment(appointmentId);
-        setAppointments(appointments.filter(a => a.appointmentId !== appointmentId));
-      } catch (err) {
-        console.error("Failed to cancel appointment", err);
-        alert("Failed to cancel appointment");
-      }
+    try {
+      await deleteAppointment(appointmentId);
+      setAppointments(
+        appointments.filter((a) => a.appointmentId !== appointmentId)
+      );
+    } catch (err) {
+      console.error("Failed to cancel appointment", err);
+      toast.error("Failed to cancel appointment");
     }
   };
 
@@ -87,46 +89,68 @@ function Appointments() {
     setIsModalOpen(false);
     setSelectedAppointment(null);
   };
+  const formatTimeTo24h = (time12h) => {
+    if (!time12h) return "";
+
+    const [time, modifier] = time12h.split(" ");
+    let [hours, minutes] = time.split(":");
+
+    if (hours === "12") {
+      hours = "00";
+    }
+
+    if (modifier === "PM") {
+      hours = parseInt(hours, 10) + 12;
+    }
+
+    // Ensure leading zeros for single digits and append seconds
+    return `${String(hours).padStart(2, "0")}:${minutes}:00`;
+  };
 
   const handleBook = async (formData) => {
     try {
+      const formattedTime = formatTimeTo24h(formData.time);
       // Adapt formData to backend DTO if needed
       const payload = {
         doctorName: formData.doctorName,
-        appointmentDate: formData.date + 'T' + formData.time, // Combine date and time
-        reason: formData.description, // Map description to reason if needed, or check DTO
-        // Check DTO from controller: CreateUpdateAppointmentDto
-        // It likely has DoctorName, AppointmentDate, Reason/Description.
-        // Let's assume standard fields.
-        ...formData
+        appointmentDate: formData.date + "T" + formattedTime, // Combine date and time
+        purpose: formData.purpose,
+        status: "Active", // Map description to reason if needed, or check DTO
       };
-      // We might need to format date properly.
 
       await createAppointment(payload);
+      toast.success("Booked appointment successfully.");
       fetchAppointments();
       handleCloseModal();
     } catch (err) {
       console.error("Failed to book appointment", err);
-      alert("Failed to book appointment");
+      toast.error("Failed to book appointment");
     }
   };
 
   const handleRescheduleSubmit = async (formData) => {
     try {
+      const formattedTime = formatTimeTo24h(formData.time);
+
       const payload = {
         doctorName: formData.doctorName,
-        appointmentDate: formData.date + 'T' + formData.time,
-        reason: formData.description,
-        ...formData
+        appointmentDate: formData.date + "T" + formattedTime,
+        purpose: formData.purpose,
+        status: "Active",
       };
       await updateAppointment(selectedAppointment.appointmentId, payload);
+      toast.success("Updated successfully");
       fetchAppointments();
       handleCloseModal();
     } catch (err) {
       console.error("Failed to reschedule appointment", err);
-      alert("Failed to reschedule appointment");
+      toast.error("Failed to reschedule appointment");
     }
   };
+
+  if (loading) {
+    return <DashboardShimmer />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -134,7 +158,9 @@ function Appointments() {
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Appointments</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Appointments
+            </h1>
             <p className="text-gray-600">Manage your doctor appointments</p>
           </div>
           <button
@@ -171,10 +197,12 @@ function Appointments() {
               {filteredAppointments.length > 0 ? (
                 filteredAppointments.map((appointment) => (
                   <AppointmentDetailCard
-                    key={appointment.id}
+                    key={appointment.appointmentId}
                     appointment={appointment}
-                    onReschedule={() => handleReschedule(appointment.id)}
-                    onCancel={() => handleCancel(appointment.id)}
+                    onReschedule={() =>
+                      handleReschedule(appointment.appointmentId)
+                    }
+                    onCancel={() => handleCancel(appointment.appointmentId)}
                   />
                 ))
               ) : (

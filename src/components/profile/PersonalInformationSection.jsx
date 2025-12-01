@@ -6,7 +6,9 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
       <div className="flex items-center gap-2 mb-6">
         <User className="text-blue-600" size={20} />
-        <h2 className="text-xl font-semibold text-gray-800">Personal Information</h2>
+        <h2 className="text-xl font-semibold text-gray-800">
+          Personal Information
+        </h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -18,9 +20,9 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
             </label>
             <input
               type="text"
-              value={profileData.fullName || ""}
+              value={profileData.user.fullName || ""}
               onChange={(e) => onChange("fullName", e.target.value)}
-              disabled={!isEditing}
+              disabled={true} //always disabled
               className={`w-full px-4 py-3 border border-gray-300 rounded-md ${
                 isEditing
                   ? "bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -50,7 +52,7 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
             </select>
           </div>
 
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Height
             </label>
@@ -66,25 +68,7 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
                   : "bg-gray-100 text-gray-600 cursor-not-allowed"
               }`}
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone
-            </label>
-            <input
-              type="tel"
-              value={profileData.phone || ""}
-              onChange={(e) => onChange("phone", e.target.value)}
-              disabled={!isEditing}
-              placeholder="(555) 123-4567"
-              className={`w-full px-4 py-3 border border-gray-300 rounded-md ${
-                isEditing
-                  ? "bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  : "bg-gray-100 text-gray-600 cursor-not-allowed"
-              }`}
-            />
-          </div>
+          </div> */}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -92,8 +76,8 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
             </label>
             <input
               type="text"
-              value={profileData.emergencyContact || ""}
-              onChange={(e) => onChange("emergencyContact", e.target.value)}
+              value={profileData.emergencycontact || ""}
+              onChange={(e) => onChange("emergencycontact", e.target.value)}
               disabled={!isEditing}
               placeholder="Name - Phone"
               className={`w-full px-4 py-3 border border-gray-300 rounded-md ${
@@ -109,12 +93,12 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Date of Birth
+              Age
             </label>
             <input
-              type="date"
-              value={profileData.dateOfBirth || ""}
-              onChange={(e) => onChange("dateOfBirth", e.target.value)}
+              type="text"
+              value={profileData.age || ""}
+              onChange={(e) => onChange("age", e.target.value)}
               disabled={!isEditing}
               className={`w-full px-4 py-3 border border-gray-300 rounded-md ${
                 isEditing
@@ -126,11 +110,11 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Blood Type
+              Blood Group
             </label>
             <select
-              value={profileData.bloodType || ""}
-              onChange={(e) => onChange("bloodType", e.target.value)}
+              value={profileData.bloodGroup || ""}
+              onChange={(e) => onChange("bloodGroup", e.target.value)}
               disabled={!isEditing}
               className={`w-full px-4 py-3 border border-gray-300 rounded-md ${
                 isEditing
@@ -138,7 +122,7 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
                   : "bg-gray-100 text-gray-600 cursor-not-allowed"
               }`}
             >
-              <option value="">Select blood type</option>
+              <option value="">Select blood group</option>
               <option value="A+">A+</option>
               <option value="A-">A-</option>
               <option value="B+">B+</option>
@@ -152,7 +136,7 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Weight
+              Weight(in kgs)
             </label>
             <input
               type="text"
@@ -174,9 +158,9 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
             </label>
             <input
               type="email"
-              value={profileData.email || ""}
+              value={profileData.user.email || ""}
               onChange={(e) => onChange("email", e.target.value)}
-              disabled={!isEditing}
+              disabled={true} //always disabled
               placeholder="john.doe@email.com"
               className={`w-full px-4 py-3 border border-gray-300 rounded-md ${
                 isEditing
@@ -192,4 +176,3 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
 };
 
 export default PersonalInformationSection;
-

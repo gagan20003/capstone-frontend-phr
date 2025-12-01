@@ -46,7 +46,8 @@ function Hero() {
     {
       icon: <Shield className="text-blue-600" size={32} />,
       title: "Secure & Private",
-      description: "Your health data is encrypted and protected with industry standards",
+      description:
+        "Your health data is encrypted and protected with industry standards",
     },
     {
       icon: <Heart className="text-blue-600" size={32} />,
@@ -218,38 +219,49 @@ function Hero() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <CheckCircle className="text-green-600 flex-shrink-0 mt-1" size={24} />
+                <CheckCircle
+                  className="text-green-600 flex-shrink-0 mt-1"
+                  size={24}
+                />
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">
                     Easy Appointment Booking
                   </h3>
                   <p className="text-gray-600">
-                    Schedule, reschedule, or cancel appointments with just a few clicks.
-                    View your upcoming and past appointments all in one place.
+                    Schedule, reschedule, or cancel appointments with just a few
+                    clicks. View your upcoming and past appointments all in one
+                    place.
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <CheckCircle className="text-green-600 flex-shrink-0 mt-1" size={24} />
+                <CheckCircle
+                  className="text-green-600 flex-shrink-0 mt-1"
+                  size={24}
+                />
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">
                     Digital Medical Records
                   </h3>
                   <p className="text-gray-600">
-                    Upload, store, and access all your medical records securely. View
-                    lab reports, prescriptions, and imaging results anytime.
+                    Upload, store, and access all your medical records securely.
+                    View lab reports, prescriptions, and imaging results
+                    anytime.
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <CheckCircle className="text-green-600 flex-shrink-0 mt-1" size={24} />
+                <CheckCircle
+                  className="text-green-600 flex-shrink-0 mt-1"
+                  size={24}
+                />
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">
                     Complete Health Profile
                   </h3>
                   <p className="text-gray-600">
-                    Maintain your health profile with allergies, medications, and
-                    personal information. Keep everything up to date.
+                    Maintain your health profile with allergies, medications,
+                    and personal information. Keep everything up to date.
                   </p>
                 </div>
               </div>

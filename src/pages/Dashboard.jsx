@@ -5,6 +5,7 @@ import { Calendar, FileText, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import RecordCard from "../components/RecordCard";
 import { getAppointments, getMedicalRecords } from "../api/apiService";
+import DashboardShimmer from "../components/common/Shimmer";
 
 function Dashboard() {
   const [appointments, setAppointments] = useState([]);
@@ -30,11 +31,18 @@ function Dashboard() {
     fetchData();
   }, []);
 
-  const upcomingAppointments = appointments.filter(apt => new Date(apt.appointmentDate) >= new Date()).slice(0, 3);
+  const upcomingAppointments = appointments
+    .filter((apt) => new Date(apt.appointmentDate) >= new Date())
+    .slice(0, 3);
   const recentRecords = records.slice(0, 3); // Assuming records are sorted by date desc
 
   if (loading) {
-    return <div className="min-h-screen bg-gray-50 p-6 flex justify-center items-center">Loading...</div>;
+    return (
+      // <div className="min-h-screen bg-gray-50 p-6 flex justify-center items-center">
+      //   Loading...
+      // </div>
+      <DashboardShimmer />
+    );
   }
 
   return (
@@ -49,10 +57,30 @@ function Dashboard() {
         {/* section - 1 cumulated data */}
         <section className="bg-white rounded-lg shadow-md p-6 border border-gray-200 mb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card message="Total Appointments" number={appointments.length} icon="Calendar" />
-            <Card message="Total Records" number={records.length} icon="FileText" />
-            <Card message="Upcoming Appointments" number={appointments.filter(apt => new Date(apt.appointmentDate) >= new Date()).length} icon="Calendar" />
-            <Card message="Recent Records" number={records.length > 5 ? 5 : records.length} icon="FileText" />
+            <Card
+              message="Total Appointments"
+              number={appointments.length}
+              icon="Calendar"
+            />
+            <Card
+              message="Total Records"
+              number={records.length}
+              icon="FileText"
+            />
+            <Card
+              message="Upcoming Appointments"
+              number={
+                appointments.filter(
+                  (apt) => new Date(apt.appointmentDate) >= new Date()
+                ).length
+              }
+              icon="Calendar"
+            />
+            <Card
+              message="Recent Records"
+              number={records.length > 5 ? 5 : records.length}
+              icon="FileText"
+            />
           </div>
         </section>
 
@@ -61,7 +89,9 @@ function Dashboard() {
           <div className="flex flex-row justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <Calendar className="text-blue-600" size={24} />
-              <h2 className="text-xl font-semibold text-gray-800">Your Appointments</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Your Appointments
+              </h2>
             </div>
             <Link
               to={"/appointments"}
@@ -80,7 +110,10 @@ function Dashboard() {
                   doctor={apt.doctorName}
                   purpose={apt.reason || "Checkup"}
                   date={new Date(apt.appointmentDate).toLocaleDateString()}
-                  time={new Date(apt.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  time={new Date(apt.appointmentDate).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 />
               ))
             ) : (
@@ -94,7 +127,9 @@ function Dashboard() {
           <div className="flex flex-row justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <FileText className="text-blue-600" size={24} />
-              <h2 className="text-xl font-semibold text-gray-800">Your Medical Records</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Your Medical Records
+              </h2>
             </div>
             <Link
               to={"/records"}
@@ -109,7 +144,7 @@ function Dashboard() {
               recentRecords.map((record) => (
                 <RecordCard
                   key={record.recordId}
-                  testName={record.recordName}
+                  testName={record.description}
                   testType={record.recordType}
                   date={new Date(record.recordDate).toLocaleDateString()}
                 />
