@@ -60,3 +60,21 @@ export const extractFormattedDateTime = (isoString) => {
     formattedTime
   };
 };
+
+export const getTodayDateString = () => {
+    const today = new Date();
+    // Use ISO string and slice to ensure correct YYYY-MM-DD format regardless of user's timezone settings
+    return today.toISOString().split('T')[0]; 
+};
+
+
+
+export const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+export const validatePassword = (password) => {
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  return passwordRegex.test(password);
+}

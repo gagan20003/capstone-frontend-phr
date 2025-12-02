@@ -77,7 +77,7 @@ function Hero() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 py-20 px-6">
+      <div className="bg-linear-to-br from-blue-50 to-blue-100 py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col items-center text-center gap-6">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-800 leading-tight">
@@ -220,7 +220,7 @@ function Hero() {
             <div className="space-y-6">
               <div className="flex items-start gap-4">
                 <CheckCircle
-                  className="text-green-600 flex-shrink-0 mt-1"
+                  className="text-green-600 shrink-0 mt-1"
                   size={24}
                 />
                 <div>
@@ -236,7 +236,7 @@ function Hero() {
               </div>
               <div className="flex items-start gap-4">
                 <CheckCircle
-                  className="text-green-600 flex-shrink-0 mt-1"
+                  className="text-green-600 shrink-0 mt-1"
                   size={24}
                 />
                 <div>
@@ -252,7 +252,7 @@ function Hero() {
               </div>
               <div className="flex items-start gap-4">
                 <CheckCircle
-                  className="text-green-600 flex-shrink-0 mt-1"
+                  className="text-green-600 shrink-0 mt-1"
                   size={24}
                 />
                 <div>
@@ -266,7 +266,7 @@ function Hero() {
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg p-12 text-center">
+            <div className="bg-linear-to-br from-blue-100 to-blue-200 rounded-lg p-12 text-center">
               <Calendar className="text-blue-600 mx-auto mb-4" size={64} />
               <h3 className="text-2xl font-bold text-gray-800 mb-2">
                 All Your Health Data
@@ -280,7 +280,7 @@ function Hero() {
       </div>
 
       {/* CTA Section */}
-      <div className="py-20 px-6 bg-gradient-to-r from-blue-600 to-blue-700">
+      <div className="py-20 px-6 bg-linear-to-r from-blue-600 to-blue-700">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Ready to Take Control of Your Health?

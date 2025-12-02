@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useCallback } from 'react';
 import { login, signup, logout, clearError } from './slices/authSlice';
 
-// Typed hooks for better TypeScript-like experience
 export const useAppDispatch = () => useDispatch();
 export const useAppSelector = useSelector;
 

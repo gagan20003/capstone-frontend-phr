@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import Button from "../components/common/Button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../store/hooks";
+import { toast } from "react-toastify";
+import { validateEmail, validatePassword } from "../utils/helper";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState("");
   const { login, isLoggedIn, loading, error } = useAuth();
   const navigate = useNavigate();
 
@@ -21,11 +24,32 @@ function Login() {
   const handleLogin = async (e) => {
     // e.preventDefault();
 
+    if (form.email.trim() === "" || form.password.trim() === "") {
+      setErrors("Email or password cannot be empty!!!");
+      return;
+    }
+
+    if (!validateEmail(form.email)) {
+      setErrors("Please enter a valid email address.");
+      return;
+    }
+
+    if (!validatePassword(form.password)) {
+      setErrors(
+        "Password must have at least 8 characters, one uppercase letter, one number, and one special character."
+      );
+      return;
+    }
+
     try {
+      setErrors("");
       const result = await login(form);
       if (result.type === "auth/login/fulfilled") {
         setForm({ email: "", password: "" });
+        toast.success("Welcome! Logged in successfully");
         navigate("/");
+      } else {
+        setErrors("Invalid Credentials");
       }
     } catch (err) {
       console.log(err);
@@ -53,9 +77,9 @@ function Login() {
             Welcome back! Please enter your credentials to log in.
           </p>
 
-          {error && (
+          {errors && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
+              {errors}
             </div>
           )}
 

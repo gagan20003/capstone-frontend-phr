@@ -21,7 +21,7 @@ function MedicalRecords() {
 
   // Mock document URL - same for all uploads as per requirement
   const MOCK_DOCUMENT_URL =
-    "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+    "https://www.rd.usda.gov/sites/default/files/pdf-sample_0.pdf";
 
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,9 +112,9 @@ function MedicalRecords() {
         description: formData.title,
         recordType: formData.type,
         recordDate: formData.date,
-        provider: "Uploaded by User", // Or from form if available
+        provider: "Uploaded by User",
         notes: formData.description,
-        fileUrl: MOCK_DOCUMENT_URL, // In a real app, upload file first then get URL
+        fileUrl: MOCK_DOCUMENT_URL,
         ...formData,
       };
       await createMedicalRecord(payload);

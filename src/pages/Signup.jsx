@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import Button from "../components/common/Button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../store/hooks";
+import { toast } from "react-toastify";
+import { validateEmail, validatePassword } from "../utils/helper";
 
 function Signup() {
   const [form, setForm] = useState({ email: "", fullName: "", password: "" });
+  const [errors, setErrors] = useState("");
   const { signup, isLoggedIn, loading, error } = useAuth();
   const navigate = useNavigate();
 
@@ -21,18 +24,38 @@ function Signup() {
   const handleSignup = async (e) => {
     // e.preventDefault();
 
+    if (form.email === "" || form.password === "" || form.fullName === "") {
+      setErrors("All fields are mandatory!");
+      return;
+    }
+
+    if (!validateEmail(form.email)) {
+      setErrors("Please Enter valid email.");
+      return;
+    }
+    if (!validatePassword(form.password)) {
+      setErrors(
+        "Password must have at least 8 characters, one uppercase letter, one number, and one special character."
+      );
+      return;
+    }
+
     try {
+      setErrors("");
       const result = await signup(form);
       if (result.type === "auth/signup/fulfilled") {
         if (result.payload.token) {
-          // If token is returned, navigate to dashboard
           setForm({ email: "", password: "", fullName: "" });
           navigate("/");
         } else {
-          // If no token, redirect to login
           setForm({ email: "", password: "", fullName: "" });
+          toast.success("Signed up Sucessfully");
           navigate("/login");
         }
+      } else {
+        setErrors(
+          "Something Went Wrong. Please try again again after sometime."
+        );
       }
     } catch (err) {
       console.log(err);
@@ -60,9 +83,9 @@ function Signup() {
             Join HealthBridge today! Enter your details below.
           </p>
 
-          {error && (
+          {errors && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
+              {errors}
             </div>
           )}
 
@@ -86,6 +109,7 @@ function Signup() {
           />
 
           {/* Password Input */}
+
           <input
             type="password"
             name="password"

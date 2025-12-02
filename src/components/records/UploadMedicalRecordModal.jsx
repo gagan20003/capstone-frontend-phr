@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, Calendar, ChevronDown, Upload, File } from "lucide-react";
 import Button from "../common/Button";
 
-const UploadMedicalRecordModal = ({
-  isOpen,
-  onClose,
-  onUpload,
-}) => {
+const UploadMedicalRecordModal = ({ isOpen, onClose, onUpload }) => {
   const [formData, setFormData] = useState({
     title: "",
     type: "",
@@ -51,7 +47,9 @@ const UploadMedicalRecordModal = ({
     const maxSize = 10 * 1024 * 1024; // 10MB
 
     const fileExtension = "." + file.name.split(".").pop().toLowerCase();
-    const isValidType = allowedTypes.includes(file.type) || allowedExtensions.includes(fileExtension);
+    const isValidType =
+      allowedTypes.includes(file.type) ||
+      allowedExtensions.includes(fileExtension);
 
     if (!isValidType) {
       return "Only PDF and JPG files are allowed";
@@ -103,7 +101,7 @@ const UploadMedicalRecordModal = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!formData.file) {
       setFileError("Please select a file to upload");
       return;
@@ -115,7 +113,10 @@ const UploadMedicalRecordModal = ({
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
   };
 
   const handleDateChange = (e) => {
@@ -129,7 +130,9 @@ const UploadMedicalRecordModal = ({
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800">Upload Medical Record</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Upload Medical Record
+          </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -194,10 +197,6 @@ const UploadMedicalRecordModal = ({
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
                 required
               />
-              <Calendar
-                size={20}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-              />
             </div>
           </div>
 
@@ -231,7 +230,9 @@ const UploadMedicalRecordModal = ({
                 {formData.file ? (
                   <>
                     <File size={48} className="text-blue-600" />
-                    <p className="text-gray-700 font-medium">{formData.file.name}</p>
+                    <p className="text-gray-700 font-medium">
+                      {formData.file.name}
+                    </p>
                     <p className="text-sm text-gray-500">
                       {(formData.file.size / 1024 / 1024).toFixed(2)} MB
                     </p>
@@ -275,4 +276,3 @@ const UploadMedicalRecordModal = ({
 };
 
 export default UploadMedicalRecordModal;
-

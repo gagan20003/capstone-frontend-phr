@@ -52,24 +52,6 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
             </select>
           </div>
 
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Height
-            </label>
-            <input
-              type="text"
-              value={profileData.height || ""}
-              onChange={(e) => onChange("height", e.target.value)}
-              disabled={!isEditing}
-              placeholder="e.g., 5'10&quot;"
-              className={`w-full px-4 py-3 border border-gray-300 rounded-md ${
-                isEditing
-                  ? "bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  : "bg-gray-100 text-gray-600 cursor-not-allowed"
-              }`}
-            />
-          </div> */}
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Emergency Contact
@@ -79,7 +61,7 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
               value={profileData.emergencycontact || ""}
               onChange={(e) => onChange("emergencycontact", e.target.value)}
               disabled={!isEditing}
-              placeholder="Name - Phone"
+              placeholder="+91 9999999999"
               className={`w-full px-4 py-3 border border-gray-300 rounded-md ${
                 isEditing
                   ? "bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -143,7 +125,7 @@ const PersonalInformationSection = ({ profileData, isEditing, onChange }) => {
               value={profileData.weight || ""}
               onChange={(e) => onChange("weight", e.target.value)}
               disabled={!isEditing}
-              placeholder="e.g., 165 lbs"
+              placeholder="e.g., 67"
               className={`w-full px-4 py-3 border border-gray-300 rounded-md ${
                 isEditing
                   ? "bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"

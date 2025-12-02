@@ -108,7 +108,7 @@ function Dashboard() {
                 <AppointmentCard
                   key={apt.appointmentId}
                   doctor={apt.doctorName}
-                  purpose={apt.reason || "Checkup"}
+                  purpose={apt.purpose || "Checkup"}
                   date={new Date(apt.appointmentDate).toLocaleDateString()}
                   time={new Date(apt.appointmentDate).toLocaleTimeString([], {
                     hour: "2-digit",

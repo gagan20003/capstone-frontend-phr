@@ -2,10 +2,11 @@ import React from "react";
 import Button from "./Button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../store/hooks";
+import { toast } from "react-toastify";
 
 function Header() {
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, userDetails } = useAuth();
 
   const handleLoginButtonClick = () => {
     navigate("/login");
@@ -16,6 +17,7 @@ function Header() {
 
   const handleLogout = () => {
     logout();
+    toast.success("Logged out!");
     navigate("/");
   };
 
@@ -40,11 +42,14 @@ function Header() {
       {/* Login/Register Buttons or Logout */}
       <div className="flex gap-3">
         {isLoggedIn ? (
-          <Button
-            text="Logout"
-            onClick={handleLogout}
-            className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md transition"
-          />
+          <>
+            {userDetails && <p>{userDetails.Email}</p>}
+            <Button
+              text="Logout"
+              onClick={handleLogout}
+              className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md transition"
+            />
+          </>
         ) : (
           <>
             <Button

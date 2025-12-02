@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { X, Calendar, ChevronDown } from "lucide-react";
 import Button from "../common/Button";
-import { extractFormattedDateTime } from "../../utils/helper";
+import {
+  extractFormattedDateTime,
+  getTodayDateString,
+} from "../../utils/helper";
 
 const BookAppointmentModal = ({
   isOpen,
@@ -68,21 +71,6 @@ const BookAppointmentModal = ({
 
   useEffect(() => {
     if (mode === "reschedule" && appointment) {
-      // // Pre-fill form with appointment data
-      // console.log(appointment, "date");
-      // const appointmentDate = new Date(appointment.date);
-      // // Format as yyyy-mm-dd for date input
-      // const formattedDate = `${appointmentDate.getFullYear()}-${String(
-      //   appointmentDate.getMonth() + 1
-      // ).padStart(2, "0")}-${String(appointmentDate.getDate()).padStart(
-      //   2,
-      //   "0"
-      // )}`;
-
-      // console.log(formattedDate, "formattedDate");
-
-      // const formattedTime = formatTimeTo24h(appointmentDate.time);
-
       const { formattedDate, formattedTime } = extractFormattedDateTime(
         appointment.appointmentDate
       );
@@ -133,6 +121,8 @@ const BookAppointmentModal = ({
 
   const isRescheduleMode = mode === "reschedule";
   const isFieldDisabled = isRescheduleMode;
+
+  const todayISOString = getTodayDateString();
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -193,7 +183,7 @@ const BookAppointmentModal = ({
             <div className="relative">
               <input
                 type="date"
-                min="todayAsYYYYMMDD"
+                min={todayISOString}
                 value={formData.date}
                 onChange={handleDateChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
