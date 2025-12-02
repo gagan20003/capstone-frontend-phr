@@ -9,7 +9,7 @@ const getInitialAuthState = () => {
     token: token || null,
     isLoggedIn: !!token,
     loading: false,
-    userDetails: userDetails,
+    userDetails: userDetails ? JSON.parse(userDetails) : null,
     error: null,
   };
 };
@@ -24,7 +24,7 @@ export const login = createAsyncThunk(
       const userDetails = response?.userDetails ;
       if (token) {
         localStorage.setItem('auth_token', token);
-        localStorage.setItem('user_details', userDetails);
+        localStorage.setItem('user_details', JSON.stringify(userDetails));
         return { token, userDetails };
       }
       throw new Error('Token not found in response');
