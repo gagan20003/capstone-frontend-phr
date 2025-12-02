@@ -1,4 +1,23 @@
 import apiClient from "./apiClient";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// Initialize Gemini API
+// NOTE: Replace with your actual API key or ensure it's in your .env file as VITE_GEMINI_API_KEY
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "YOUR_API_KEY_HERE"; 
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+export const askAI = async (prompt) => {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    return text;
+  } catch (error) {
+    console.error("Error calling Gemini API:", error);
+    throw error;
+  }
+};
 
 
 
