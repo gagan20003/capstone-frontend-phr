@@ -218,16 +218,14 @@ function UserProfile() {
           {allergies.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {allergies.map((allergy) => (
-                <div
-                  key={allergy.id}
-                  className="cursor-pointer"
-                  onClick={() => handleEditAllergy(allergy)}
-                >
+                <div key={allergy.allergyId}>
                   <AllergyCard
                     allergy={allergy}
                     onDelete={(e) => {
-                      e.stopPropagation();
-                      handleDeleteAllergy(allergy.id);
+                      handleDeleteAllergy(allergy.allergyId);
+                    }}
+                    onEdit={(e) => {
+                      handleEditAllergy(allergy);
                     }}
                   />
                 </div>
@@ -262,16 +260,14 @@ function UserProfile() {
           {medications.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {medications.map((medication) => (
-                <div
-                  key={medication.id}
-                  className="cursor-pointer"
-                  onClick={() => handleEditMedication(medication)}
-                >
+                <div key={medication.medicationId}>
                   <MedicationCard
                     medication={medication}
                     onDelete={(e) => {
-                      e.stopPropagation();
-                      handleDeleteMedication(medication.id);
+                      handleDeleteMedication(medication.medicationId);
+                    }}
+                    onEdit={() => {
+                      handleEditMedication(medication);
                     }}
                   />
                 </div>

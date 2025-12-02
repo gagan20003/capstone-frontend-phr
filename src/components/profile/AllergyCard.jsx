@@ -1,5 +1,5 @@
 import React from "react";
-import { Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 
 const getSeverityColor = (severity) => {
   const colors = {
@@ -10,7 +10,7 @@ const getSeverityColor = (severity) => {
   return colors[severity] || "bg-gray-100 text-gray-700";
 };
 
-const AllergyCard = ({ allergy, onDelete }) => {
+const AllergyCard = ({ allergy, onDelete, onEdit }) => {
   return (
     <div className="bg-red-50 rounded-lg p-4 border border-red-200">
       <div className="flex justify-between items-start mb-2">
@@ -24,12 +24,20 @@ const AllergyCard = ({ allergy, onDelete }) => {
         </span>
       </div>
       <p className="text-red-600 text-sm mb-2">{allergy.symptoms}</p>
-      <button
-        onClick={() => onDelete(allergy.allergyId)}
-        className=" text-red-600 hover:bg-red-100 rounded-md transition-colors"
-      >
-        <Trash2 size={18} />
-      </button>
+      <div className="flex flex-row justify-between">
+        <button
+          onClick={() => onDelete(allergy.allergyId)}
+          className=" text-red-600 hover:bg-red-100 rounded-md transition-colors cursor-pointer"
+        >
+          <Trash2 size={18} />
+        </button>
+        <button
+          className="text-yellow-400 hover:bg-yellow-100 rounded-md transition-colors cursor-pointer"
+          onClick={() => onEdit()}
+        >
+          <Edit size={18} />
+        </button>
+      </div>
     </div>
   );
 };

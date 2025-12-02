@@ -1,7 +1,7 @@
 import React from "react";
-import { Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 
-const MedicationCard = ({ medication, onDelete }) => {
+const MedicationCard = ({ medication, onDelete, onEdit }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 relative flex flex-col">
       <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -20,12 +20,20 @@ const MedicationCard = ({ medication, onDelete }) => {
 
       <div className="flex flex-row items-center justify-between">
         <p>Since: {medication.datePrescribed}</p>
-        <button
-          onClick={() => onDelete(medication.id)}
-          className=" p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-        >
-          <Trash2 size={18} />
-        </button>
+        <div className="flex flex-row justify-between">
+          <button
+            onClick={() => onDelete(medication.medicationId)}
+            className=" p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
+          >
+            <Trash2 size={18} />
+          </button>
+          <button
+            onClick={() => onEdit(medication)}
+            className=" p-2 text-yellow-400 hover:bg-yellow-50 rounded-md transition-colors cursor-pointer"
+          >
+            <Edit size={18} />
+          </button>
+        </div>
       </div>
     </div>
   );
