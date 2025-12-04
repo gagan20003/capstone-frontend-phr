@@ -4,22 +4,22 @@ import Button from "../common/Button";
 
 const AllergyModal = ({ isOpen, onClose, onSave, allergy = null }) => {
   const [formData, setFormData] = useState({
-    allergen: "",
-    reaction: "",
+    allergyName: "",
+    symptoms: "",
     severity: "",
   });
 
   useEffect(() => {
     if (allergy) {
       setFormData({
-        allergen: allergy.allergen || "",
-        reaction: allergy.reaction || "",
+        allergyName: allergy.allergyName || "",
+        symptoms: allergy.symptoms || "",
         severity: allergy.severity || "",
       });
     } else {
       setFormData({
-        allergen: "",
-        reaction: "",
+        allergyName: "",
+        symptoms: "",
         severity: "",
       });
     }
@@ -57,12 +57,12 @@ const AllergyModal = ({ isOpen, onClose, onSave, allergy = null }) => {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Allergen
+              AllergyName
             </label>
             <input
               type="text"
-              value={formData.allergen}
-              onChange={(e) => handleChange("allergen", e.target.value)}
+              value={formData.allergyName}
+              onChange={(e) => handleChange("allergyName", e.target.value)}
               placeholder="e.g., Penicillin"
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -75,8 +75,8 @@ const AllergyModal = ({ isOpen, onClose, onSave, allergy = null }) => {
             </label>
             <input
               type="text"
-              value={formData.reaction}
-              onChange={(e) => handleChange("reaction", e.target.value)}
+              value={formData.symptoms}
+              onChange={(e) => handleChange("symptoms", e.target.value)}
               placeholder="e.g., Anaphylaxis, Hives"
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -126,4 +126,3 @@ const AllergyModal = ({ isOpen, onClose, onSave, allergy = null }) => {
 };
 
 export default AllergyModal;
-

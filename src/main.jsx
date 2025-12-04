@@ -7,9 +7,11 @@ import Footer from "./components/common/Footer.jsx";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store/store.js";
+import { ToastContainer } from "react-toastify";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
+    <ToastContainer />
     <Provider store={store}>
       <BrowserRouter>
         <Header />

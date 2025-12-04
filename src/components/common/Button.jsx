@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 
-const Button = ({ text, onClick, type = "button", className = "", disabled = false }) => {
+const Button = ({
+  text,
+  onClick,
+  type = "button",
+  className = "",
+  disabled = false,
+}) => {
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
@@ -39,12 +45,13 @@ const Button = ({ text, onClick, type = "button", className = "", disabled = fal
     >
       {loading ? (
         <span
-          className="spinner-border spinner-border-sm"
+          className="text-white h-4 w-2 border-t-2 animate-spin rounded-lg"
           role="status"
           aria-hidden="true"
         ></span>
-      ) : null}
-      {loading ? "Loading..." : text}
+      ) : (
+        text
+      )}
     </button>
   );
 };

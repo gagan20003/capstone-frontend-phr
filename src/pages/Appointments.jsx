@@ -1,9 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "../components/appointments/Calendar";
 import AppointmentDetailCard from "../components/appointments/AppointmentDetailCard";
 import Tabs from "../components/appointments/Tabs";
 import BookAppointmentModal from "../components/appointments/BookAppointmentModal";
 import { Plus } from "lucide-react";
+import {
+  getAppointments,
+  createAppointment,
+  updateAppointment,
+  deleteAppointment,
+} from "../api/apiService";
+import { toast } from "react-toastify";
+import DashboardShimmer from "../components/common/Shimmer";
+import ConfirmationModal from "../components/common/ConfirmationModal";
 
 function Appointments() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -12,79 +21,65 @@ function Appointments() {
   const [modalMode, setModalMode] = useState("book"); // "book" or "reschedule"
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
-  // Sample appointment data
-  const appointments = [
-    {
-      id: 1,
-      doctorName: "Dr. Sarah Johnson",
-      date: "2025-11-26",
-      time: "10:00 AM",
-      address: "Heart Care Clinic - 123 Medical Plaza, Suite 400",
-      description: "Follow-up appointment for blood pressure monitoring",
-      status: "upcoming",
-    },
-    {
-      id: 2,
-      doctorName: "Dr. Michael Chen",
-      date: "2025-11-28",
-      time: "2:30 PM",
-      address: "City Medical Center - 456 Health Avenue",
-      description: "Annual checkup and routine examination",
-      status: "upcoming",
-    },
-    {
-      id: 3,
-      doctorName: "Dr. Emily Davis",
-      date: "2025-11-02",
-      time: "9:00 AM",
-      address: "Wellness Clinic - 789 Care Street",
-      description: "Consultation for ongoing treatment",
-      status: "past",
-    },
-    {
-      id: 4,
-      doctorName: "Dr. James Wilson",
-      date: "2025-10-15",
-      time: "11:00 AM",
-      address: "Family Health Center - 321 Wellness Blvd",
-      description: "Follow-up visit",
-      status: "past",
-    },
-    {
-      id: 5,
-      doctorName: "Dr. Lisa Anderson",
-      date: "2025-11-24",
-      time: "3:00 PM",
-      address: "General Practice - 555 Main Street",
-      description: "Regular consultation",
-      status: "upcoming",
-    },
-  ];
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [IsConfirmModal, setIsConfirmModal] = useState(false);
+  const [appoinmentIdToDelete, setAppointmentIdToDelete] = useState(0);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const data = await getAppointments();
+      setAppointments(data);
+    } catch (err) {
+      console.error("Failed to fetch appointments", err);
+      setError("Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const appointmentDates = appointments.map((apt) => ({
-    date: apt.date,
+    date: apt.appointmentDate,
   }));
 
-  const filteredAppointments = appointments.filter(
-    (apt) => apt.status === activeTab
-  );
+  const filteredAppointments = appointments.filter((apt) => {
+    const isPast = new Date(apt.appointmentDate) < new Date();
+    const derivedStatus = isPast ? "past" : "upcoming";
+    return derivedStatus === activeTab;
+  });
 
-  const upcomingCount = appointments.filter((apt) => apt.status === "upcoming").length;
-  const pastCount = appointments.filter((apt) => apt.status === "past").length;
+  const upcomingCount = appointments.filter(
+    (apt) => new Date(apt.appointmentDate) >= new Date()
+  ).length;
+  const pastCount = appointments.filter(
+    (apt) => new Date(apt.appointmentDate) < new Date()
+  ).length;
 
   const handleReschedule = (appointmentId) => {
-    const appointment = appointments.find((apt) => apt.id === appointmentId);
+    const appointment = appointments.find(
+      (apt) => apt.appointmentId === appointmentId
+    );
     setSelectedAppointment(appointment);
     setModalMode("reschedule");
     setIsModalOpen(true);
   };
 
-  const handleCancel = (appointmentId) => {
-    console.log("Cancel appointment:", appointmentId);
-    // Add cancel logic here - could show confirmation dialog
-    if (window.confirm("Are you sure you want to cancel this appointment?")) {
-      // Handle cancellation
-      console.log("Appointment cancelled:", appointmentId);
+  const handleCancel = async (appointmentId) => {
+    try {
+      await deleteAppointment(appointmentId);
+      setAppointments(
+        appointments.filter((a) => a.appointmentId !== appointmentId)
+      );
+      toast.success("Appointment canceled successfully");
+    } catch (err) {
+      console.error("Failed to cancel appointment", err);
+      toast.error("Failed to cancel appointment");
     }
   };
 
@@ -98,30 +93,78 @@ function Appointments() {
     setIsModalOpen(false);
     setSelectedAppointment(null);
   };
+  const formatTimeTo24h = (time12h) => {
+    if (!time12h) return "";
 
-  const handleBook = (formData) => {
-    console.log("Booking appointment:", formData);
-    // Add API call to book appointment here
-    // After successful booking, close modal and refresh appointments
-    handleCloseModal();
-    // You might want to show a success message here
+    const [time, modifier] = time12h.split(" ");
+    let [hours, minutes] = time.split(":");
+
+    if (hours === "12") {
+      hours = "00";
+    }
+
+    if (modifier === "PM") {
+      hours = parseInt(hours, 10) + 12;
+    }
+
+    // Ensure leading zeros for single digits and append seconds
+    return `${String(hours).padStart(2, "0")}:${minutes}:00`;
   };
 
-  const handleRescheduleSubmit = (formData) => {
-    console.log("Rescheduling appointment:", formData);
-    // Add API call to reschedule appointment here
-    // After successful reschedule, close modal and refresh appointments
-    handleCloseModal();
-    // You might want to show a success message here
+  const handleBook = async (formData) => {
+    try {
+      const formattedTime = formatTimeTo24h(formData.time);
+      // Adapt formData to backend DTO if needed
+      const payload = {
+        doctorName: formData.doctorName,
+        appointmentDate: formData.date + "T" + formattedTime, // Combine date and time
+        purpose: formData.purpose,
+        status: "Active", // Map description to reason if needed, or check DTO
+      };
+
+      await createAppointment(payload);
+      toast.success("Booked appointment successfully.");
+      fetchAppointments();
+      handleCloseModal();
+    } catch (err) {
+      console.error("Failed to book appointment", err);
+      toast.error("Failed to book appointment");
+    }
   };
+
+  const handleRescheduleSubmit = async (formData) => {
+    try {
+      const formattedTime = formatTimeTo24h(formData.time);
+
+      const payload = {
+        doctorName: formData.doctorName,
+        appointmentDate: formData.date + "T" + formattedTime,
+        purpose: formData.purpose,
+        status: "Active",
+      };
+      await updateAppointment(selectedAppointment.appointmentId, payload);
+      toast.success("Updated successfully");
+      fetchAppointments();
+      handleCloseModal();
+    } catch (err) {
+      console.error("Failed to reschedule appointment", err);
+      toast.error("Failed to reschedule appointment");
+    }
+  };
+
+  if (loading) {
+    return <DashboardShimmer />;
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 py-6 px-4 md:px-20">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Appointments</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Appointments
+            </h1>
             <p className="text-gray-600">Manage your doctor appointments</p>
           </div>
           <button
@@ -158,10 +201,15 @@ function Appointments() {
               {filteredAppointments.length > 0 ? (
                 filteredAppointments.map((appointment) => (
                   <AppointmentDetailCard
-                    key={appointment.id}
+                    key={appointment.appointmentId}
                     appointment={appointment}
-                    onReschedule={() => handleReschedule(appointment.id)}
-                    onCancel={() => handleCancel(appointment.id)}
+                    onReschedule={() =>
+                      handleReschedule(appointment.appointmentId)
+                    }
+                    onCancel={() => {
+                      setIsConfirmModal(true);
+                      setAppointmentIdToDelete(appointment.appointmentId);
+                    }}
                   />
                 ))
               ) : (
@@ -182,6 +230,19 @@ function Appointments() {
         appointment={selectedAppointment}
         onBook={handleBook}
         onReschedule={handleRescheduleSubmit}
+      />
+
+      <ConfirmationModal
+        title="Cancel Appointment"
+        message="Are you sure you want to cancel this appointment?"
+        cancelText="No"
+        confirmText="Yes, Cancel"
+        isOpen={IsConfirmModal}
+        onCancel={() => setIsConfirmModal(false)}
+        onConfirm={() => {
+          handleCancel(appoinmentIdToDelete);
+          setIsConfirmModal(false); // Close modal after delete
+        }}
       />
     </div>
   );

@@ -4,10 +4,12 @@ import { login as loginApi, signup as signupApi } from '../../api/apiService';
 // Check if user is logged in on initial load
 const getInitialAuthState = () => {
   const token = localStorage.getItem('auth_token');
+  const userDetails = localStorage.getItem('user_details');
   return {
     token: token || null,
     isLoggedIn: !!token,
     loading: false,
+    userDetails: userDetails ? JSON.parse(userDetails) : null,
     error: null,
   };
 };
@@ -18,11 +20,12 @@ export const login = createAsyncThunk(
   async (loginData, { rejectWithValue }) => {
     try {
       const response = await loginApi(loginData);
-      // Assuming the API returns { token: '...' } or similar
       const token = response?.token || response?.data?.token || response?.access_token;
+      const userDetails = response?.userDetails ;
       if (token) {
         localStorage.setItem('auth_token', token);
-        return { token };
+        localStorage.setItem('user_details', JSON.stringify(userDetails));
+        return { token, userDetails };
       }
       throw new Error('Token not found in response');
     } catch (error) {
@@ -61,6 +64,7 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_details');
       state.token = null;
       state.isLoggedIn = false;
       state.error = null;
@@ -80,6 +84,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.token = action.payload.token;
         state.isLoggedIn = true;
+        state.userDetails = action.payload.userDetails;
         state.error = null;
       })
       .addCase(login.rejected, (state, action) => {

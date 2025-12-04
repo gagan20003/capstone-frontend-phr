@@ -1,27 +1,85 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
 import AppointmentCard from "../components/AppointmentCard";
 import { Calendar, FileText, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import RecordCard from "../components/RecordCard";
+import { getAppointments, getMedicalRecords } from "../api/apiService";
+import DashboardShimmer from "../components/common/Shimmer";
+import { useAuth } from "../store/hooks";
 
 function Dashboard() {
+  const [appointments, setAppointments] = useState([]);
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const { userDetails } = useAuth();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [appointmentsData, recordsData] = await Promise.all([
+          getAppointments(),
+          getMedicalRecords(),
+        ]);
+        setAppointments(appointmentsData);
+        setRecords(recordsData);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const upcomingAppointments = appointments
+    .filter((apt) => new Date(apt.appointmentDate) >= new Date())
+    .slice(0, 3);
+  const recentRecords = records.slice(0, 3); // Assuming records are sorted by date desc
+
+  if (loading) {
+    return <DashboardShimmer />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
+          <p>Welcome, {userDetails.name}</p>
           <p className="text-gray-600">Here's your health summary for today</p>
         </div>
 
         {/* section - 1 cumulated data */}
         <section className="bg-white rounded-lg shadow-md p-6 border border-gray-200 mb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card message="Total Appointments" number={12} icon="Calendar" />
-            <Card message="Total Records" number={48} icon="FileText" />
-            <Card message="Upcoming Appointments" number={3} icon="Calendar" />
-            <Card message="Recent Records" number={8} icon="FileText" />
+            <Card
+              message="Total Appointments"
+              number={appointments.length}
+              icon="Calendar"
+            />
+            <Card
+              message="Total Records"
+              number={records.length}
+              icon="FileText"
+            />
+            <Card
+              message="Upcoming Appointments"
+              number={
+                appointments.filter(
+                  (apt) => new Date(apt.appointmentDate) >= new Date()
+                ).length
+              }
+              icon="Calendar"
+            />
+            <Card
+              message="Recent Records"
+              number={records.length > 5 ? 5 : records.length}
+              icon="FileText"
+            />
           </div>
         </section>
 
@@ -30,7 +88,9 @@ function Dashboard() {
           <div className="flex flex-row justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <Calendar className="text-blue-600" size={24} />
-              <h2 className="text-xl font-semibold text-gray-800">Your Appointments</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Your Appointments
+              </h2>
             </div>
             <Link
               to={"/appointments"}
@@ -42,24 +102,22 @@ function Dashboard() {
           </div>
 
           <div className="flex flex-col gap-4">
-            <AppointmentCard
-              doctor="Dr. Sarah Johnson"
-              purpose="Checkup"
-              date="29 Nov, 2025"
-              time="11 AM"
-            />
-            <AppointmentCard
-              doctor="Dr. Michael Chen"
-              purpose="Follow-up"
-              date="30 Nov, 2025"
-              time="2 PM"
-            />
-            <AppointmentCard
-              doctor="Dr. Emily Davis"
-              purpose="Consultation"
-              date="1 Dec, 2025"
-              time="10 AM"
-            />
+            {upcomingAppointments.length > 0 ? (
+              upcomingAppointments.map((apt) => (
+                <AppointmentCard
+                  key={apt.appointmentId}
+                  doctor={apt.doctorName}
+                  purpose={apt.purpose || "Checkup"}
+                  date={new Date(apt.appointmentDate).toLocaleDateString()}
+                  time={new Date(apt.appointmentDate).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                />
+              ))
+            ) : (
+              <p className="text-gray-500">No upcoming appointments.</p>
+            )}
           </div>
         </section>
 
@@ -68,7 +126,9 @@ function Dashboard() {
           <div className="flex flex-row justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <FileText className="text-blue-600" size={24} />
-              <h2 className="text-xl font-semibold text-gray-800">Your Medical Records</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Your Medical Records
+              </h2>
             </div>
             <Link
               to={"/records"}
@@ -79,21 +139,18 @@ function Dashboard() {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <RecordCard
-              testName="Complete Blood Count (CBC)"
-              testType="Lab Report"
-              date="26 NOV"
-            />
-            <RecordCard
-              testName="Chest X-Ray"
-              testType="Imaging"
-              date="24 NOV"
-            />
-            <RecordCard
-              testName="Lisinopril Prescription"
-              testType="Prescription"
-              date="20 NOV"
-            />
+            {recentRecords.length > 0 ? (
+              recentRecords.map((record) => (
+                <RecordCard
+                  key={record.recordId}
+                  testName={record.description}
+                  testType={record.recordType}
+                  date={new Date(record.recordDate).toLocaleDateString()}
+                />
+              ))
+            ) : (
+              <p className="text-gray-500">No medical records found.</p>
+            )}
           </div>
         </section>
       </div>

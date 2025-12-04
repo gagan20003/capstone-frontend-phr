@@ -4,29 +4,33 @@ import Button from "../common/Button";
 
 const MedicationModal = ({ isOpen, onClose, onSave, medication = null }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    dosage: "",
-    purpose: "",
+    medicineName: "",
+    frequency: "",
+    quantity: "",
+    prescribedFor: "",
     prescribedBy: "",
-    startDate: "",
+    datePrescribed: "",
   });
+  const [errors, setErrors] = useState("");
 
   useEffect(() => {
     if (medication) {
       setFormData({
-        name: medication.name || "",
-        dosage: medication.dosage || "",
-        purpose: medication.purpose || "",
+        medicineName: medication.medicineName || "",
+        frequency: medication.frequency || "",
+        quantity: medication.quantity || "",
         prescribedBy: medication.prescribedBy || "",
-        startDate: medication.startDate || "",
+        prescribedFor: medication.prescribedFor || "",
+        datePrescribed: medication.datePrescribed || "",
       });
     } else {
       setFormData({
-        name: "",
-        dosage: "",
-        purpose: "",
+        medicineName: "",
+        frequency: "",
+        quantity: "",
         prescribedBy: "",
-        startDate: "",
+        prescribedFor: "",
+        datePrescribed: "",
       });
     }
   }, [medication, isOpen]);
@@ -36,18 +40,33 @@ const MedicationModal = ({ isOpen, onClose, onSave, medication = null }) => {
       ...prev,
       [field]: value,
     }));
+    setErrors("");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (
+      formData.datePrescribed === "" ||
+      formData.medicineName === "" ||
+      formData.frequency === "" ||
+      formData.quantity === "" ||
+      formData.prescribedBy === "" ||
+      formData.prescribedFor === ""
+    ) {
+      setErrors("All Fields are mandatory!");
+      return;
+    }
+
+    setErrors("");
+
     onSave(formData);
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 ">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-y-auto max-h-[90vh]">
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-800">
             {medication ? "Edit Medication" : "Add New Medication"}
@@ -60,6 +79,10 @@ const MedicationModal = ({ isOpen, onClose, onSave, medication = null }) => {
           </button>
         </div>
 
+        {errors && (
+          <p className="p-2 text-red-800 bg-red-400 border-red-400">{errors}</p>
+        )}
+
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -67,8 +90,8 @@ const MedicationModal = ({ isOpen, onClose, onSave, medication = null }) => {
             </label>
             <input
               type="text"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
+              value={formData.medicineName}
+              onChange={(e) => handleChange("medicineName", e.target.value)}
               placeholder="e.g., Lisinopril"
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -77,12 +100,25 @@ const MedicationModal = ({ isOpen, onClose, onSave, medication = null }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Dosage and Frequency
+              Dosage
             </label>
             <input
               type="text"
-              value={formData.dosage}
-              onChange={(e) => handleChange("dosage", e.target.value)}
+              value={formData.quantity}
+              onChange={(e) => handleChange("quantity", e.target.value)}
+              placeholder="e.g., 10mg - Once daily"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Frequency
+            </label>
+            <input
+              type="text"
+              value={formData.frequency}
+              onChange={(e) => handleChange("frequency", e.target.value)}
               placeholder="e.g., 10mg - Once daily"
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -95,8 +131,8 @@ const MedicationModal = ({ isOpen, onClose, onSave, medication = null }) => {
             </label>
             <input
               type="text"
-              value={formData.purpose}
-              onChange={(e) => handleChange("purpose", e.target.value)}
+              value={formData.prescribedFor}
+              onChange={(e) => handleChange("prescribedFor", e.target.value)}
               placeholder="e.g., Blood pressure management"
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -123,16 +159,12 @@ const MedicationModal = ({ isOpen, onClose, onSave, medication = null }) => {
             </label>
             <div className="relative">
               <input
-                type="text"
-                value={formData.startDate}
-                onChange={(e) => handleChange("startDate", e.target.value)}
+                type="date"
+                value={formData.datePrescribed}
+                onChange={(e) => handleChange("datePrescribed", e.target.value)}
                 placeholder="e.g., Jan 2024"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
-              />
-              <Calendar
-                size={20}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
               />
             </div>
           </div>
@@ -157,4 +189,3 @@ const MedicationModal = ({ isOpen, onClose, onSave, medication = null }) => {
 };
 
 export default MedicationModal;
-

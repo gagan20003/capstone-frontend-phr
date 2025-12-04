@@ -1,10 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Edit2, AlertCircle, Pill } from "lucide-react";
 import PersonalInformationSection from "../components/profile/PersonalInformationSection";
 import AllergyCard from "../components/profile/AllergyCard";
 import MedicationCard from "../components/profile/MedicationCard";
 import AllergyModal from "../components/profile/AllergyModal";
 import MedicationModal from "../components/profile/MedicationModal";
+import {
+  getUserProfile,
+  updateUserProfile,
+  getAllergies,
+  createAllergy,
+  updateAllergy,
+  deleteAllergy,
+  getMedications,
+  createMedication,
+  updateMedication,
+  deleteMedication,
+} from "../api/apiService";
+import { toast } from "react-toastify";
+import DashboardShimmer from "../components/common/Shimmer";
 
 function UserProfile() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -13,65 +27,34 @@ function UserProfile() {
   const [editingAllergy, setEditingAllergy] = useState(null);
   const [editingMedication, setEditingMedication] = useState(null);
 
-  const [profileData, setProfileData] = useState({
-    fullName: "John Doe",
-    dateOfBirth: "1985-06-15",
-    gender: "Male",
-    bloodType: "O+",
-    height: "5'10\"",
-    weight: "165 lbs",
-    phone: "(555) 123-4567",
-    email: "john.doe@email.com",
-    emergencyContact: "Jane Doe - (555) 987-6543",
-  });
+  const [profileData, setProfileData] = useState(null);
+  const [allergies, setAllergies] = useState([]);
+  const [medications, setMedications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [allergies, setAllergies] = useState([
-    {
-      id: 1,
-      allergen: "Penicillin",
-      reaction: "Anaphylaxis",
-      severity: "Severe",
-    },
-    {
-      id: 2,
-      allergen: "Peanuts",
-      reaction: "Hives, swelling",
-      severity: "Moderate",
-    },
-    {
-      id: 3,
-      allergen: "Latex",
-      reaction: "Skin irritation",
-      severity: "Mild",
-    },
-  ]);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const [medications, setMedications] = useState([
-    {
-      id: 1,
-      name: "Lisinopril",
-      dosage: "10mg - Once daily",
-      purpose: "Blood pressure management",
-      prescribedBy: "Dr. Sarah Johnson",
-      startDate: "Jan 2024",
-    },
-    {
-      id: 2,
-      name: "Atorvastatin",
-      dosage: "20mg - Once daily (evening)",
-      purpose: "Cholesterol management",
-      prescribedBy: "Dr. Michael Chen",
-      startDate: "Mar 2024",
-    },
-    {
-      id: 3,
-      name: "Vitamin D3",
-      dosage: "2000 IU - Once daily",
-      purpose: "Vitamin D supplementation",
-      prescribedBy: "Dr. Sarah Johnson",
-      startDate: "Oct 2024",
-    },
-  ]);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [profile, allergiesData, medicationsData] = await Promise.all([
+        getUserProfile(),
+        getAllergies(),
+        getMedications(),
+      ]);
+      setProfileData(profile);
+      setAllergies(allergiesData);
+      setMedications(medicationsData);
+      console.log(allergies, "profiledata");
+    } catch (err) {
+      console.error("Failed to fetch profile data", err);
+      // Handle error appropriately
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleProfileChange = (field, value) => {
     setProfileData((prev) => ({
@@ -80,11 +63,21 @@ function UserProfile() {
     }));
   };
 
-  const handleSaveProfile = () => {
-    // Here you would make an API call to save the profile
-    console.log("Saving profile:", profileData);
-    setIsEditingProfile(false);
-    // await apiClient.put('/profile', profileData);
+  const handleSaveProfile = async () => {
+    try {
+      await updateUserProfile({
+        age: profileData.age,
+        gender: profileData.gender,
+        emergencycontact: profileData.emergencycontact,
+        weight: profileData.weight,
+        bloodGroup: profileData.bloodGroup,
+      });
+      toast.success("updated details successfully");
+      setIsEditingProfile(false);
+    } catch (err) {
+      console.error("Failed to update profile", err);
+      toast.error("Failed to update profile");
+    }
   };
 
   const handleAddAllergy = () => {
@@ -97,33 +90,33 @@ function UserProfile() {
     setIsAllergyModalOpen(true);
   };
 
-  const handleSaveAllergy = (allergyData) => {
-    if (editingAllergy) {
-      // Update existing allergy
-      setAllergies(
-        allergies.map((a) =>
-          a.id === editingAllergy.id ? { ...allergyData, id: editingAllergy.id } : a
-        )
-      );
-    } else {
-      // Add new allergy
-      const newAllergy = {
-        ...allergyData,
-        id: allergies.length > 0 ? Math.max(...allergies.map((a) => a.id)) + 1 : 1,
-      };
-      setAllergies([...allergies, newAllergy]);
+  const handleSaveAllergy = async (allergyData) => {
+    try {
+      if (editingAllergy) {
+        await updateAllergy(editingAllergy.allergyId, allergyData);
+        toast.success("Updated successfully.");
+      } else {
+        await createAllergy(allergyData);
+        toast.success("Added successfully.");
+      }
+      const updatedAllergies = await getAllergies();
+      setAllergies(updatedAllergies);
+      setIsAllergyModalOpen(false);
+      setEditingAllergy(null);
+    } catch (err) {
+      console.error("Failed to save allergy", err);
+      toast.error("Failed to save allergy");
     }
-    setIsAllergyModalOpen(false);
-    setEditingAllergy(null);
-    // Here you would make an API call
-    // await apiClient.post('/allergies', allergyData);
   };
 
-  const handleDeleteAllergy = (id) => {
-    if (window.confirm("Are you sure you want to delete this allergy?")) {
-      setAllergies(allergies.filter((a) => a.id !== id));
-      // Here you would make an API call
-      // await apiClient.delete(`/allergies/${id}`);
+  const handleDeleteAllergy = async (id) => {
+    try {
+      await deleteAllergy(id);
+      toast.success("deleted successfully successfully.");
+      setAllergies(allergies.filter((a) => a.allergyId !== id));
+    } catch (err) {
+      console.error("Failed to delete allergy", err);
+      toast.error("Failed to delete allergy");
     }
   };
 
@@ -137,40 +130,38 @@ function UserProfile() {
     setIsMedicationModalOpen(true);
   };
 
-  const handleSaveMedication = (medicationData) => {
-    if (editingMedication) {
-      // Update existing medication
-      setMedications(
-        medications.map((m) =>
-          m.id === editingMedication.id
-            ? { ...medicationData, id: editingMedication.id }
-            : m
-        )
-      );
-    } else {
-      // Add new medication
-      const newMedication = {
-        ...medicationData,
-        id:
-          medications.length > 0
-            ? Math.max(...medications.map((m) => m.id)) + 1
-            : 1,
-      };
-      setMedications([...medications, newMedication]);
+  const handleSaveMedication = async (medicationData) => {
+    try {
+      if (editingMedication) {
+        await updateMedication(editingMedication.medicationId, medicationData);
+        toast.success("Updated Successfully");
+      } else {
+        await createMedication(medicationData);
+        toast.success("Created successfully.");
+      }
+      const updatedMedications = await getMedications();
+      setMedications(updatedMedications);
+      setIsMedicationModalOpen(false);
+      setEditingMedication(null);
+    } catch (err) {
+      console.error("Failed to save medication", err);
+      toast.error("Failed to save medication");
     }
-    setIsMedicationModalOpen(false);
-    setEditingMedication(null);
-    // Here you would make an API call
-    // await apiClient.post('/medications', medicationData);
   };
 
-  const handleDeleteMedication = (id) => {
-    if (window.confirm("Are you sure you want to delete this medication?")) {
-      setMedications(medications.filter((m) => m.id !== id));
-      // Here you would make an API call
-      // await apiClient.delete(`/medications/${id}`);
+  const handleDeleteMedication = async (id) => {
+    try {
+      await deleteMedication(id);
+      toast.success("deleted successfully successfully.");
+      setMedications(medications.filter((m) => m.medicationId !== id));
+    } catch (err) {
+      console.error("Failed to delete medication", err);
+      toast.error("Failed to delete medication");
     }
   };
+
+  if (loading) return <DashboardShimmer />;
+  if (!profileData) return <div className="p-6">Profile not found.</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -178,7 +169,9 @@ function UserProfile() {
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Health Profile</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Health Profile
+            </h1>
             <p className="text-gray-600">Your complete health information</p>
           </div>
           <button
@@ -225,23 +218,23 @@ function UserProfile() {
           {allergies.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {allergies.map((allergy) => (
-                <div
-                  key={allergy.id}
-                  className="cursor-pointer"
-                  onClick={() => handleEditAllergy(allergy)}
-                >
+                <div key={allergy.allergyId}>
                   <AllergyCard
                     allergy={allergy}
                     onDelete={(e) => {
-                      e.stopPropagation();
-                      handleDeleteAllergy(allergy.id);
+                      handleDeleteAllergy(allergy.allergyId);
+                    }}
+                    onEdit={(e) => {
+                      handleEditAllergy(allergy);
                     }}
                   />
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">No allergies recorded</p>
+            <p className="text-gray-500 text-center py-8">
+              No allergies recorded
+            </p>
           )}
         </div>
 
@@ -267,23 +260,23 @@ function UserProfile() {
           {medications.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {medications.map((medication) => (
-                <div
-                  key={medication.id}
-                  className="cursor-pointer"
-                  onClick={() => handleEditMedication(medication)}
-                >
+                <div key={medication.medicationId}>
                   <MedicationCard
                     medication={medication}
                     onDelete={(e) => {
-                      e.stopPropagation();
-                      handleDeleteMedication(medication.id);
+                      handleDeleteMedication(medication.medicationId);
+                    }}
+                    onEdit={() => {
+                      handleEditMedication(medication);
                     }}
                   />
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">No medications recorded</p>
+            <p className="text-gray-500 text-center py-8">
+              No medications recorded
+            </p>
           )}
         </div>
 

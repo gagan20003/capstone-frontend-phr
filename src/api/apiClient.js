@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.PHR_API_URL,
+  baseURL : "https://localhost:7120/api/",
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -10,7 +10,6 @@ const apiClient = axios.create({
 
     apiClient.interceptors.request.use(
       (config) => {
-        // Do something before the request is sent, e.g., add an authorization token
         const token = localStorage.getItem('auth_token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -18,7 +17,6 @@ const apiClient = axios.create({
         return config;
       },
       (error) => {
-        // Do something with request error
         return Promise.reject(error);
       }
     );

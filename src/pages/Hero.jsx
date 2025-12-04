@@ -46,7 +46,8 @@ function Hero() {
     {
       icon: <Shield className="text-blue-600" size={32} />,
       title: "Secure & Private",
-      description: "Your health data is encrypted and protected with industry standards",
+      description:
+        "Your health data is encrypted and protected with industry standards",
     },
     {
       icon: <Heart className="text-blue-600" size={32} />,
@@ -76,7 +77,7 @@ function Hero() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 py-20 px-6">
+      <div className="bg-linear-to-br from-blue-50 to-blue-100 py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col items-center text-center gap-6">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-800 leading-tight">
@@ -218,43 +219,54 @@ function Hero() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <CheckCircle className="text-green-600 flex-shrink-0 mt-1" size={24} />
+                <CheckCircle
+                  className="text-green-600 shrink-0 mt-1"
+                  size={24}
+                />
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">
                     Easy Appointment Booking
                   </h3>
                   <p className="text-gray-600">
-                    Schedule, reschedule, or cancel appointments with just a few clicks.
-                    View your upcoming and past appointments all in one place.
+                    Schedule, reschedule, or cancel appointments with just a few
+                    clicks. View your upcoming and past appointments all in one
+                    place.
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <CheckCircle className="text-green-600 flex-shrink-0 mt-1" size={24} />
+                <CheckCircle
+                  className="text-green-600 shrink-0 mt-1"
+                  size={24}
+                />
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">
                     Digital Medical Records
                   </h3>
                   <p className="text-gray-600">
-                    Upload, store, and access all your medical records securely. View
-                    lab reports, prescriptions, and imaging results anytime.
+                    Upload, store, and access all your medical records securely.
+                    View lab reports, prescriptions, and imaging results
+                    anytime.
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <CheckCircle className="text-green-600 flex-shrink-0 mt-1" size={24} />
+                <CheckCircle
+                  className="text-green-600 shrink-0 mt-1"
+                  size={24}
+                />
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">
                     Complete Health Profile
                   </h3>
                   <p className="text-gray-600">
-                    Maintain your health profile with allergies, medications, and
-                    personal information. Keep everything up to date.
+                    Maintain your health profile with allergies, medications,
+                    and personal information. Keep everything up to date.
                   </p>
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg p-12 text-center">
+            <div className="bg-linear-to-br from-blue-100 to-blue-200 rounded-lg p-12 text-center">
               <Calendar className="text-blue-600 mx-auto mb-4" size={64} />
               <h3 className="text-2xl font-bold text-gray-800 mb-2">
                 All Your Health Data
@@ -268,7 +280,7 @@ function Hero() {
       </div>
 
       {/* CTA Section */}
-      <div className="py-20 px-6 bg-gradient-to-r from-blue-600 to-blue-700">
+      <div className="py-20 px-6 bg-linear-to-r from-blue-600 to-blue-700">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Ready to Take Control of Your Health?
