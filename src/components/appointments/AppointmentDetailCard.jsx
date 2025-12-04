@@ -74,7 +74,7 @@ const AppointmentDetailCard = ({ appointment, onReschedule, onCancel }) => {
         <Button
           text="Cancel"
           onClick={onCancel}
-          className="flex-1 bg-white border-2 border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-md transition"
+          className="flex-1 bg-white! border-2!  border-red-300! text-red-600! hover:bg-red-50! px-4 py-2 rounded-md transition"
         />
       </div>
     </div>

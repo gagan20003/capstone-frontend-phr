@@ -11,6 +11,7 @@ import {
 } from "../api/apiService";
 import { toast } from "react-toastify";
 import DashboardShimmer from "../components/common/Shimmer";
+import ConfirmationModal from "../components/common/ConfirmationModal";
 
 function MedicalRecords() {
   const [activeFilter, setActiveFilter] = useState("All Records");
@@ -18,14 +19,15 @@ function MedicalRecords() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
-
-  // Mock document URL - same for all uploads as per requirement
-  const MOCK_DOCUMENT_URL =
-    "https://www.rd.usda.gov/sites/default/files/pdf-sample_0.pdf";
-
+  const [isModalOpen, setModalOpen] = useState(false);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedRecordId, setSelectedRecordId] = useState(0);
+
+  // Mock document URL - same for all uploads as per requirement
+  const MOCK_DOCUMENT_URL =
+    "https://i.postimg.cc/2Sfw1x0h/dummy-report-jpg.png";
 
   useEffect(() => {
     fetchRecords();
@@ -135,11 +137,12 @@ function MedicalRecords() {
     setIsViewerOpen(true);
   };
 
-  const handleDelete = async (recordId) => {
+  const handleDelete = async (selectedRecordId) => {
     try {
-      await deleteMedicalRecord(recordId);
+      console.log(selectedRecordId);
+      await deleteMedicalRecord(selectedRecordId);
       toast.success("successfully deleted the record");
-      setRecords(records.filter((r) => r.recordId !== recordId));
+      setRecords(records.filter((r) => r.recordId !== selectedRecordId));
     } catch (err) {
       console.error("Failed to delete record", err);
       toast.error("Failed to delete record");
@@ -204,7 +207,10 @@ function MedicalRecords() {
                 key={record.recordId}
                 record={record}
                 onView={handleView}
-                onDelete={() => handleDelete(record.recordId)}
+                onDelete={() => {
+                  setModalOpen(true);
+                  setSelectedRecordId(record.recordId);
+                }}
               />
             ))}
           </div>
@@ -229,6 +235,19 @@ function MedicalRecords() {
           onClose={() => setIsViewerOpen(false)}
           documentUrl={selectedDocument?.url}
           documentTitle={selectedDocument?.title}
+        />
+
+        <ConfirmationModal
+          title="Delete Record"
+          message="Are you sure you want to delete this record"
+          cancelText="Cancel"
+          confirmText="Delete"
+          isOpen={isModalOpen}
+          onCancel={() => setModalOpen(false)}
+          onConfirm={() => {
+            handleDelete(selectedRecordId);
+            setModalOpen(false); // Close modal after delete
+          }}
         />
       </div>
     </div>

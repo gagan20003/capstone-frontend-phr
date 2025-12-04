@@ -37,22 +37,25 @@ function Header() {
           <nav className="flex gap-6 text-gray-700 font-medium">
             <Link
               to={"/profile"}
-              className={`hover:text-blue-600 transition-colors ${location.pathname === "/profile" ? "text-blue-600" : ""
-                }`}
+              className={`hover:text-blue-600 transition-colors ${
+                location.pathname === "/profile" ? "text-blue-600" : ""
+              }`}
             >
               Profile
             </Link>
             <Link
               to={"/records"}
-              className={`hover:text-blue-600 transition-colors ${location.pathname === "/records" ? "text-blue-600" : ""
-                }`}
+              className={`hover:text-blue-600 transition-colors ${
+                location.pathname === "/records" ? "text-blue-600" : ""
+              }`}
             >
               Records
             </Link>
             <Link
               to={"/appointments"}
-              className={`hover:text-blue-600 transition-colors ${location.pathname === "/appointments" ? "text-blue-600" : ""
-                }`}
+              className={`hover:text-blue-600 transition-colors ${
+                location.pathname === "/appointments" ? "text-blue-600" : ""
+              }`}
             >
               Appointments
             </Link>
@@ -64,11 +67,14 @@ function Header() {
       <div className="flex gap-3 items-center">
         {isLoggedIn ? (
           <>
-            {userDetails && <p className="hidden md:block">{userDetails.Email}</p>}
+            <p className="hidden md:block capitalize text-xl">
+              {userDetails.name}
+            </p>
+
             <Button
               text="Logout"
               onClick={handleLogout}
-              className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md transition hidden md:block"
+              className="bg-white! text-red-500! hover:bg-red-50! border-2! border-red-300! px-4 py-2 hidden md:block rounded-md transition "
             />
             {/* Mobile Menu Button */}
             <button
@@ -101,50 +107,56 @@ function Header() {
             <Link
               to={"/profile"}
               onClick={() => setIsMenuOpen(false)}
-              className={`p-2 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors ${location.pathname === "/profile"
-                ? "bg-blue-50 text-blue-600"
-                : ""
-                }`}
+              className={`p-2 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors ${
+                location.pathname === "/profile"
+                  ? "bg-blue-50 text-blue-600"
+                  : ""
+              }`}
             >
               Profile
             </Link>
             <Link
               to={"/records"}
               onClick={() => setIsMenuOpen(false)}
-              className={`p-2 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors ${location.pathname === "/records"
-                ? "bg-blue-50 text-blue-600"
-                : ""
-                }`}
+              className={`p-2 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors ${
+                location.pathname === "/records"
+                  ? "bg-blue-50 text-blue-600"
+                  : ""
+              }`}
             >
               Records
             </Link>
             <Link
               to={"/appointments"}
               onClick={() => setIsMenuOpen(false)}
-              className={`p-2 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors ${location.pathname === "/appointments"
-                ? "bg-blue-50 text-blue-600"
-                : ""
-                }`}
+              className={`p-2 rounded-md hover:bg-blue-50 hover:text-blue-600 transition-colors ${
+                location.pathname === "/appointments"
+                  ? "bg-blue-50 text-blue-600"
+                  : ""
+              }`}
             >
               Appointments
             </Link>
           </nav>
           <div className="border-t border-gray-100 pt-4 flex flex-col gap-3">
-            {userDetails && <p className="text-sm text-gray-500">Signed in as: {userDetails.Email}</p>}
+            {userDetails && (
+              <p className="text-sm text-gray-500">
+                Signed in as: {userDetails.name}
+              </p>
+            )}
             <Button
               text="Logout"
               onClick={() => {
                 setIsMenuOpen(false);
                 handleLogout();
               }}
-              className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md transition w-full"
+              className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md transition w-full "
             />
           </div>
         </div>
       )}
     </header>
   );
-
 }
 
 export default Header;

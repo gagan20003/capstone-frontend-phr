@@ -12,6 +12,7 @@ import {
 } from "../api/apiService";
 import { toast } from "react-toastify";
 import DashboardShimmer from "../components/common/Shimmer";
+import ConfirmationModal from "../components/common/ConfirmationModal";
 
 function Appointments() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -23,6 +24,8 @@ function Appointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [IsConfirmModal, setIsConfirmModal] = useState(false);
+  const [appoinmentIdToDelete, setAppointmentIdToDelete] = useState(0);
 
   useEffect(() => {
     fetchAppointments();
@@ -73,6 +76,7 @@ function Appointments() {
       setAppointments(
         appointments.filter((a) => a.appointmentId !== appointmentId)
       );
+      toast.success("Appointment canceled successfully");
     } catch (err) {
       console.error("Failed to cancel appointment", err);
       toast.error("Failed to cancel appointment");
@@ -202,7 +206,10 @@ function Appointments() {
                     onReschedule={() =>
                       handleReschedule(appointment.appointmentId)
                     }
-                    onCancel={() => handleCancel(appointment.appointmentId)}
+                    onCancel={() => {
+                      setIsConfirmModal(true);
+                      setAppointmentIdToDelete(appointment.appointmentId);
+                    }}
                   />
                 ))
               ) : (
@@ -223,6 +230,19 @@ function Appointments() {
         appointment={selectedAppointment}
         onBook={handleBook}
         onReschedule={handleRescheduleSubmit}
+      />
+
+      <ConfirmationModal
+        title="Cancel Appointment"
+        message="Are you sure you want to cancel this appointment?"
+        cancelText="No"
+        confirmText="Yes, Cancel"
+        isOpen={IsConfirmModal}
+        onCancel={() => setIsConfirmModal(false)}
+        onConfirm={() => {
+          handleCancel(appoinmentIdToDelete);
+          setIsConfirmModal(false); // Close modal after delete
+        }}
       />
     </div>
   );
