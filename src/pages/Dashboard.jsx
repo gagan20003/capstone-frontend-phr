@@ -6,11 +6,14 @@ import { Link } from "react-router-dom";
 import RecordCard from "../components/RecordCard";
 import { getAppointments, getMedicalRecords } from "../api/apiService";
 import DashboardShimmer from "../components/common/Shimmer";
+import { useAuth } from "../store/hooks";
 
 function Dashboard() {
   const [appointments, setAppointments] = useState([]);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const { userDetails } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,12 +40,7 @@ function Dashboard() {
   const recentRecords = records.slice(0, 3); // Assuming records are sorted by date desc
 
   if (loading) {
-    return (
-      // <div className="min-h-screen bg-gray-50 p-6 flex justify-center items-center">
-      //   Loading...
-      // </div>
-      <DashboardShimmer />
-    );
+    return <DashboardShimmer />;
   }
 
   return (
@@ -51,6 +49,7 @@ function Dashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
+          <p>Welcome, {userDetails.name}</p>
           <p className="text-gray-600">Here's your health summary for today</p>
         </div>
 
